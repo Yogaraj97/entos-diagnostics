@@ -1,0 +1,19 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "title":"EntOS section coverage v1",
+  "type":"object",
+  "required":["schemaVersion","sections"],
+  "properties":{
+    "schemaVersion":{"const":1},
+    "sections":{"type":"array","items":{
+      "type":"object",
+      "required":["id","title","owner","fields"],
+      "properties":{
+        "id":{"type":"string","minLength":1},
+        "title":{"type":"string","minLength":1},
+        "owner":{"type":"string","minLength":1},
+        "fields":{"type":"array","minItems":1,"items":{"type":"string","minLength":1}}
+      }
+    }}
+  }
+}

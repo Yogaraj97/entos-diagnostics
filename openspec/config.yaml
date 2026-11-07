@@ -1,0 +1,36 @@
+schema: spec-driven
+
+context: "EntOS Diagnostics is a read-only C++17 AI2.0 utility. Retrieval stays in C++ with no shell scripts or subprocess collection. Separate Thunder, platform, and application collectors use common snapshots. Planned dependencies are libcurl and JsonCpp with optional native adapters. Neighboring repositories are analysis sources, not edit roots. Inventory all plugins but query only verified read-only bindings. Report field gaps, provenance, timestamps, inference, and target locality. Never output credentials, read DRM keys, mutate plugins, or claim unverified parity. Host tests do not prove target API or deployment correctness."
+
+rules: {proposal: ["State current implementation status and non-goals."], specs: ["Define testable public behavior and unsupported/error cases."], design: ["Record API evidence, data ownership, privacy, and extension boundaries."], tasks: ["Separate host implementation, wire verification, and target release gates.", "Mark tasks complete only after focused verification."]}
+
+# Project context (optional)
+# This is shown to AI when creating artifacts.
+# Add your tech stack, conventions, style guides, domain knowledge, etc.
+# Example:
+#   context: |
+#     Tech stack: TypeScript, React, Node.js
+#     We use conventional commits
+#     Domain: e-commerce platform
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always include a "Non-goals" section
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
+
+# Per-operation guidance (optional)
+# Add advisory guidance for how apply and archive work should be conducted.
+# This is separate from artifact rules above.
+# Example:
+#   operations:
+#     apply:
+#       guidance:
+#         - Keep test summaries concise
+#     archive:
+#       guidance:
+#         - Summarize the archive outcome before finishing

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EntOS diagnostic provider profile v1",
+  "type": "object",
+  "required": ["schemaVersion", "providers"],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "providers": {"type": "array", "items": {
+      "type": "object",
+      "required": ["id", "section", "callsigns", "interfaceVersion", "operation", "readOnly", "params", "resultType", "evidence", "verification", "enabled"],
+      "properties": {
+        "id": {"type":"string", "minLength":1},
+        "section": {"enum":["config","dial","iui","forwarded-launch","input","package","pathway","platform","power","removal","runtime","softcat","startup","system-app","thunder","window","gateway","resource"]},
+        "callsigns": {"type":"array", "minItems":1, "items":{"type":"string","pattern":"^[A-Za-z0-9_.-]+$"}},
+        "interfaceVersion": {"type":"string", "pattern":"^[0-9]+$"},
+        "operation": {"enum":["getInstalledApps","getLoadedApps","listPackages","getApps","GetStats","GetMemInfo","GetSwapUsed","GetFlashSpace","getMaxRunningApps","getMaxHibernatedApps","getMaxHibernatedFlashUsage","getMaxInactiveRamUsage"]},
+        "readOnly": {"const":true},
+        "params": {"type":"object"},
+        "resultType": {"enum":["object","array"]},
+        "evidence": {"type":"string", "minLength":1},
+        "verification": {"enum":["provisional","verified"]},
+        "enabled": {"type":"boolean"}
+        ,"fieldMappings": {"type":"object", "additionalProperties": {
+          "type":"object", "required":["path","embeddedJson"],
+          "properties":{"path":{"type":"array","items":{"type":"string"}},"embeddedJson":{"type":"boolean"}}
+        }}
+      },
+      "if": {"properties":{"enabled":{"const":true}}},
+      "then": {"required":["fieldMappings"],"properties":{"verification":{"const":"verified"},"fieldMappings":{"minProperties":1}}}
+    }}
+  }
+}

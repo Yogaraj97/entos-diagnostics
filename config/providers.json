@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "providers": [
+    {"id":"app.loaded","section":"runtime","callsigns":["org.rdk.AppManager"],"interfaceVersion":"1","operation":"getLoadedApps","readOnly":true,"params":{},"resultType":"object","evidence":"test_AppManager.cpp JSON-RPC name; wire shape/version pending","verification":"provisional","enabled":false},
+    {"id":"app.installed","section":"runtime","callsigns":["org.rdk.AppManager"],"interfaceVersion":"1","operation":"getInstalledApps","readOnly":true,"params":{},"resultType":"object","evidence":"test_AppManager.cpp JSON-RPC name; wire shape/version pending","verification":"provisional","enabled":false},
+    {"id":"package.list","section":"package","callsigns":["org.rdk.AppPackageManager","org.rdk.PackageManager"],"interfaceVersion":"1","operation":"listPackages","readOnly":true,"params":{},"resultType":"object","evidence":"test_PackageManager.cpp JSON-RPC name; deployed callsign/version pending","verification":"provisional","enabled":false},
+    {"id":"resource.stats","section":"resource","callsigns":["org.rdk.ResourceMonitor"],"interfaceVersion":"1","operation":"GetStats","readOnly":true,"params":{},"resultType":"object","evidence":"test_ResourceMonitor.cpp JSON-RPC name; wire shape/version pending","verification":"provisional","enabled":false},
+    {"id":"window.clients","section":"window","callsigns":["org.rdk.RDKWindowManager"],"interfaceVersion":"1","operation":"getApps","readOnly":true,"params":{},"resultType":"object","evidence":"test_RDKWindowManager.cpp JSON-RPC name; wire shape/version pending","verification":"provisional","enabled":false}
+  ]
+}
