@@ -12,7 +12,18 @@ if(NOT JSONCPP_LIBRARY OR NOT JSONCPP_INCLUDE_DIR)
 endif()
 find_package(CURL REQUIRED)
 option(ENTOS_ENABLE_YAML "Enable structured declared YAML configuration collection" OFF)
-add_library(diagnostics_core src/platform/ProcessSnapshot.cpp src/core/ProviderRegistry.cpp src/core/Snapshot.cpp src/core/CollectionEngine.cpp src/thunder/RpcClient.cpp src/thunder/CurlTransport.cpp src/thunder/PluginCollector.cpp src/platform/PlatformCollector.cpp src/application/AppCollector.cpp)
+add_library(diagnostics_core 
+    src/platform/ProcessSnapshot.cpp 
+    src/core/ProviderRegistry.cpp 
+    src/core/Snapshot.cpp 
+    src/core/CollectionEngine.cpp 
+    src/thunder/RpcClient.cpp 
+    src/thunder/CurlTransport.cpp 
+    src/thunder/PluginCollector.cpp 
+    src/platform/PlatformCollector.cpp 
+    src/application/AppCollector.cpp
+    src/application/AppManagerDumpsys.cpp
+    src/application/UnifiedDiagnostics.cpp)
 target_include_directories(diagnostics_core PUBLIC include ${JSONCPP_INCLUDE_DIR})
 target_link_libraries(diagnostics_core PUBLIC ${JSONCPP_LIBRARY} CURL::libcurl)
 if(ENTOS_ENABLE_YAML)

@@ -1,0 +1,17 @@
+{
+  "success": true,
+  "loaded_apps": [
+    {
+      "appId": "com.netflix.nrdp",
+      "instanceId": "instance-001",
+      "state": "running",
+      "pid": 1234
+    },
+    {
+      "appId": "com.bskyb.epgui",
+      "instanceId": "instance-002",
+      "state": "running",
+      "pid": 5678
+    }
+  ]
+}

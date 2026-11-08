@@ -1,0 +1,18 @@
+{
+  "success": true,
+  "apps": [
+    {
+      "appId": "com.bskyb.epgui",
+      "zOrder": 100,
+      "focused": true,
+      "visible": true
+    },
+    {
+      "appId": "com.netflix.nrdp",
+      "zOrder": 50,
+      "focused": false,
+      "visible": false
+    }
+  ],
+  "focused_app_id": "com.bskyb.epgui"
+}

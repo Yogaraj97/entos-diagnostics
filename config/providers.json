@@ -1,10 +1,132 @@
 {
   "schemaVersion": 1,
   "providers": [
-    {"id":"app.loaded","section":"runtime","callsigns":["org.rdk.AppManager"],"interfaceVersion":"1","operation":"getLoadedApps","readOnly":true,"params":{},"resultType":"object","evidence":"test_AppManager.cpp JSON-RPC name; wire shape/version pending","verification":"provisional","enabled":false},
-    {"id":"app.installed","section":"runtime","callsigns":["org.rdk.AppManager"],"interfaceVersion":"1","operation":"getInstalledApps","readOnly":true,"params":{},"resultType":"object","evidence":"test_AppManager.cpp JSON-RPC name; wire shape/version pending","verification":"provisional","enabled":false},
-    {"id":"package.list","section":"package","callsigns":["org.rdk.AppPackageManager","org.rdk.PackageManager"],"interfaceVersion":"1","operation":"listPackages","readOnly":true,"params":{},"resultType":"object","evidence":"test_PackageManager.cpp JSON-RPC name; deployed callsign/version pending","verification":"provisional","enabled":false},
-    {"id":"resource.stats","section":"resource","callsigns":["org.rdk.ResourceMonitor"],"interfaceVersion":"1","operation":"GetStats","readOnly":true,"params":{},"resultType":"object","evidence":"test_ResourceMonitor.cpp JSON-RPC name; wire shape/version pending","verification":"provisional","enabled":false},
-    {"id":"window.clients","section":"window","callsigns":["org.rdk.RDKWindowManager"],"interfaceVersion":"1","operation":"getApps","readOnly":true,"params":{},"resultType":"object","evidence":"test_RDKWindowManager.cpp JSON-RPC name; wire shape/version pending","verification":"provisional","enabled":false}
+    {
+      "id": "app.loaded",
+      "section": "runtime",
+      "callsigns": ["org.rdk.AppManager"],
+      "interfaceVersion": "1",
+      "operation": "getLoadedApps",
+      "readOnly": true,
+      "params": {},
+      "resultType": "object",
+      "evidence": "entservices-appmanagers/AppManager/AppManager.h:Exchange::JAppManager::Register; dumpsys.txt LOADED APPLICATIONS section; curl -d '{\"jsonrpc\":\"2.0\",\"id\":\"3\",\"method\":\"org.rdk.AppManager.getLoadedApps\",\"params\":{}}' http://127.0.0.1:9998/jsonrpc",
+      "verification": "provisional",
+      "enabled": false,
+      "fieldMappings": {
+        "app.loaded.count": {
+          "path": ["loaded_apps"],
+          "embeddedJson": false
+        },
+        "app.loaded.summary": {
+          "path": ["loaded_apps"],
+          "embeddedJson": true
+        }
+      }
+    },
+    {
+      "id": "app.installed",
+      "section": "runtime",
+      "callsigns": ["org.rdk.AppManager"],
+      "interfaceVersion": "1",
+      "operation": "getInstalledApps",
+      "readOnly": true,
+      "params": {},
+      "resultType": "object",
+      "evidence": "entservices-appmanagers/AppManager/AppManager.h:Exchange::JAppManager::Register; dumpsys.txt PACKAGE MANAGER Database shows installed packages; curl -d '{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"method\":\"org.rdk.AppManager.getInstalledApps\",\"params\":{}}' http://127.0.0.1:9998/jsonrpc",
+      "verification": "provisional",
+      "enabled": false,
+      "fieldMappings": {
+        "app.installed.count": {
+          "path": ["installed_apps"],
+          "embeddedJson": false
+        },
+        "app.installed.summary": {
+          "path": ["installed_apps"],
+          "embeddedJson": true
+        }
+      }
+    },
+    {
+      "id": "package.list",
+      "section": "package",
+      "callsigns": ["org.rdk.AppPackageManager", "org.rdk.PackageManager"],
+      "interfaceVersion": "1",
+      "operation": "listPackages",
+      "readOnly": true,
+      "params": {},
+      "resultType": "object",
+      "evidence": "entservices-appmanagers/PackageManager/PackageManager.h; dumpsys.txt PACKAGE MANAGER Database and Cache sections; curl -d '{\"jsonrpc\":\"2.0\",\"id\":\"1001\",\"method\":\"org.rdk.AppPackageManager.listPackages\",\"params\":{}}' http://127.0.0.1:9998/jsonrpc",
+      "verification": "provisional",
+      "enabled": false,
+      "fieldMappings": {
+        "package.count": {
+          "path": ["packages"],
+          "embeddedJson": false
+        },
+        "package.cache.used": {
+          "path": ["cache", "used_bytes"],
+          "embeddedJson": false
+        },
+        "package.list": {
+          "path": ["packages"],
+          "embeddedJson": true
+        }
+      }
+    },
+    {
+      "id": "resource.stats",
+      "section": "resource",
+      "callsigns": ["org.rdk.ResourceMonitor"],
+      "interfaceVersion": "1",
+      "operation": "GetStats",
+      "readOnly": true,
+      "params": {},
+      "resultType": "object",
+      "evidence": "entservices-appmanagers/ResourceMonitor/ResourceMonitor.h; dumpsys shows process CPU/memory metrics; curl -d '{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"method\":\"org.rdk.ResourceMonitor.GetStats\",\"params\":{}}' http://127.0.0.1:9998/jsonrpc",
+      "verification": "provisional",
+      "enabled": false,
+      "fieldMappings": {
+        "resource.cpu.total": {
+          "path": ["stats", "total_cpu"],
+          "embeddedJson": false
+        },
+        "resource.memory.total": {
+          "path": ["stats", "total_memory_bytes"],
+          "embeddedJson": false
+        },
+        "resource.stats.summary": {
+          "path": ["stats"],
+          "embeddedJson": true
+        }
+      }
+    },
+    {
+      "id": "window.clients",
+      "section": "window",
+      "callsigns": ["org.rdk.RDKWindowManager"],
+      "interfaceVersion": "1",
+      "operation": "getApps",
+      "readOnly": true,
+      "params": {},
+      "resultType": "object",
+      "evidence": "entservices-appmanagers/RDKWindowManager/RDKWindowManager.h; RDK shell shows app z-order and focus state; curl -d '{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"method\":\"org.rdk.RDKWindowManager.getApps\",\"params\":{}}' http://127.0.0.1:9998/jsonrpc",
+      "verification": "provisional",
+      "enabled": false,
+      "fieldMappings": {
+        "window.client.count": {
+          "path": ["apps"],
+          "embeddedJson": false
+        },
+        "window.focused.app": {
+          "path": ["focused_app_id"],
+          "embeddedJson": false
+        },
+        "window.apps.summary": {
+          "path": ["apps"],
+          "embeddedJson": true
+        }
+      }
+    }
   ]
 }

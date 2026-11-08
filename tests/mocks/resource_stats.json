@@ -1,0 +1,19 @@
+{
+  "success": true,
+  "stats": [
+    {
+      "appId": "com.netflix.nrdp",
+      "cpu": 5.2,
+      "memory_bytes": 134217728,
+      "timestamp": 1730977661
+    },
+    {
+      "appId": "com.bskyb.epgui",
+      "cpu": 3.1,
+      "memory_bytes": 268435456,
+      "timestamp": 1730977661
+    }
+  ],
+  "total_cpu": 15.7,
+  "total_memory_bytes": 2147483648
+}

@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "packages": [
+    {
+      "name": "com.netflix.nrdp",
+      "version": "100.140.1.22110",
+      "size": "52 MB",
+      "installed": true,
+      "type": "zip"
+    },
+    {
+      "name": "com.bskyb.epgui",
+      "version": "4.22.2",
+      "size": "11 MB",
+      "installed": true,
+      "type": "zip"
+    }
+  ],
+  "cache": {
+    "used_bytes": 503316480,
+    "limit_bytes": 104857600
+  }
+}
