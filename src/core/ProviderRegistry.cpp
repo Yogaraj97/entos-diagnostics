@@ -108,8 +108,20 @@ std::vector<Provider> parseProviders(const Json::Value& root)
             for (const auto& field : entry["fieldMappings"].getMemberNames()) {
                 const auto& mapping = entry["fieldMappings"][field];
                 if (std::find(contract->fields.begin(), contract->fields.end(), field) == contract->fields.end()
-                        || !mapping.isObject() || !mapping["path"].isArray() || !mapping["embeddedJson"].isBool())
-                    throw std::runtime_error("Invalid field mapping contract");
+                        || !mapping.isObject() || !mapping["path"].isArray() || !mapping["embeddedJson"].isBool()) {
+                    std::string error = "Invalid field mapping contract for provider: " + provider.id + 
+                                        ", section: " + provider.section + 
+                                        ", field: " + field;
+                    if (!mapping.isObject())
+                        error += " (mapping not object)";
+                    else if (!mapping["path"].isArray())
+                        error += " (path not array)";
+                    else if (!mapping["embeddedJson"].isBool())
+                        error += " (embeddedJson not boolean)";
+                    else
+                        error += " (field '" + field + "' not in section contract)";
+                    throw std::runtime_error(error);
+                }
                 Provider::Mapping parsed;
                 parsed.embeddedJson = mapping["embeddedJson"].asBool();
                 for (const auto& key : mapping["path"]) {
