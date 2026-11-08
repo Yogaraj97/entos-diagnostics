@@ -1,4 +1,5 @@
 #include "entos/Snapshot.h"
+#include "entos/DumpsysFormatter.h"
 #include <algorithm>
 #include <cctype>
 #include <ctime>
@@ -127,6 +128,24 @@ std::string textOutput(const Json::Value& snapshot)
 {
     std::ostringstream output;
     for (const auto& section : snapshot["sections"]) {
+        std::string sectionId = section["id"].asString();
+        
+        // Use DumpsysFormatter for app-related sections for proper table output
+        if (sectionId == "runtime" && section["data"].isMember("apps")) {
+            output << DumpsysFormatter::formatRuntimeManager(section["data"]);
+            continue;
+        } else if (sectionId == "package" && section["data"].isMember("packages")) {
+            output << DumpsysFormatter::formatPackageManager(section["data"]);
+            continue;
+        } else if (sectionId == "window" && section["data"].isMember("clients")) {
+            output << DumpsysFormatter::formatWindowManager(section["data"]);
+            continue;
+        } else if (sectionId == "resource" && section["data"].isMember("stats")) {
+            output << DumpsysFormatter::formatResourceMonitor(section["data"]);
+            continue;
+        }
+        
+        // Default formatting for other sections
         output << section["title"].asString() << ":\n"
                << "    Status: " << section["status"].asString() << '\n';
         for (const auto& name : section["data"].getMemberNames()) {

@@ -23,6 +23,8 @@ add_library(diagnostics_core
     src/platform/PlatformCollector.cpp 
     src/application/AppCollector.cpp
     src/application/AppManagerDumpsys.cpp
+    src/application/AppManagerFormatter.cpp
+    src/application/DumpsysFormatter.cpp
     src/application/UnifiedDiagnostics.cpp)
 target_include_directories(diagnostics_core PUBLIC include ${JSONCPP_INCLUDE_DIR})
 target_link_libraries(diagnostics_core PUBLIC ${JSONCPP_LIBRARY} CURL::libcurl)

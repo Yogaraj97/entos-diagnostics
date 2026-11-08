@@ -12,7 +12,7 @@
       "resultType": "object",
       "evidence": "entservices-appmanagers/AppManager/AppManager.h:Exchange::JAppManager::Register; dumpsys.txt LOADED APPLICATIONS section",
       "verification": "provisional",
-      "enabled": false,
+      "enabled": true,
       "fieldMappings": {
         "apps": {
           "path": ["loaded_apps"],
@@ -31,7 +31,7 @@
       "resultType": "object",
       "evidence": "entservices-appmanagers/AppManager/AppManager.h:Exchange::JAppManager::Register; dumpsys.txt PACKAGE MANAGER Database shows installed packages",
       "verification": "provisional",
-      "enabled": false,
+      "enabled": true,
       "fieldMappings": {
         "apps": {
           "path": ["installed_apps"],
@@ -50,7 +50,7 @@
       "resultType": "object",
       "evidence": "entservices-appmanagers/PackageManager/PackageManager.h; dumpsys.txt PACKAGE MANAGER Database and Cache sections",
       "verification": "provisional",
-      "enabled": false,
+      "enabled": true,
       "fieldMappings": {
         "packages": {
           "path": ["packages"],
@@ -73,7 +73,7 @@
       "resultType": "object",
       "evidence": "entservices-appmanagers/ResourceMonitor/ResourceMonitor.h; dumpsys shows process CPU/memory metrics",
       "verification": "provisional",
-      "enabled": false,
+      "enabled": true,
       "fieldMappings": {
         "stats": {
           "path": ["stats"],
@@ -92,7 +92,7 @@
       "resultType": "object",
       "evidence": "entservices-appmanagers/RDKWindowManager/RDKWindowManager.h; RDK shell shows app z-order and focus state",
       "verification": "provisional",
-      "enabled": false,
+      "enabled": true,
       "fieldMappings": {
         "clients": {
           "path": ["apps"],
