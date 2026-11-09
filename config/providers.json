@@ -11,15 +11,13 @@
       "operation": "getLoadedApps",
       "readOnly": true,
       "params": {},
-      "resultType": "object",
-      "evidence": "entservices-appmanagers/AppManager/AppManager.h:Exchange::JAppManager::Register; dumpsys.txt LOADED APPLICATIONS section",
+      "resultType": "array",
+      "evidence": "entservices-appmanagers/AppManager/AppManager.h:Exchange::JAppManager::Register; dumpsys.txt LOADED APPLICATIONS section; Thunder returns array of app objects",
       "verification": "verified",
       "enabled": true,
       "fieldMappings": {
         "apps": {
-          "path": [
-            "loaded_apps"
-          ],
+          "path": [],
           "embeddedJson": false
         }
       }
@@ -34,15 +32,13 @@
       "operation": "getInstalledApps",
       "readOnly": true,
       "params": {},
-      "resultType": "object",
-      "evidence": "entservices-appmanagers/AppManager/AppManager.h:Exchange::JAppManager::Register; dumpsys.txt PACKAGE MANAGER Database shows installed packages",
+      "resultType": "array",
+      "evidence": "entservices-appmanagers/AppManager/AppManager.h:Exchange::JAppManager::Register; dumpsys.txt PACKAGE MANAGER Database shows installed packages; Thunder returns array of app objects",
       "verification": "verified",
       "enabled": true,
       "fieldMappings": {
         "apps": {
-          "path": [
-            "installed_apps"
-          ],
+          "path": [],
           "embeddedJson": false
         }
       }
@@ -58,21 +54,13 @@
       "operation": "listPackages",
       "readOnly": true,
       "params": {},
-      "resultType": "object",
-      "evidence": "entservices-appmanagers/PackageManager/PackageManager.h; dumpsys.txt PACKAGE MANAGER Database and Cache sections",
+      "resultType": "array",
+      "evidence": "entservices-appmanagers/PackageManager/PackageManager.h; dumpsys.txt PACKAGE MANAGER Database and Cache sections; Thunder returns array of package objects",
       "verification": "verified",
       "enabled": true,
       "fieldMappings": {
         "packages": {
-          "path": [
-            "packages"
-          ],
-          "embeddedJson": false
-        },
-        "cache": {
-          "path": [
-            "cache"
-          ],
+          "path": [],
           "embeddedJson": false
         }
       }
@@ -110,15 +98,13 @@
       "operation": "getApps",
       "readOnly": true,
       "params": {},
-      "resultType": "object",
-      "evidence": "entservices-appmanagers/RDKWindowManager/RDKWindowManager.h; RDK shell shows app z-order and focus state",
+      "resultType": "array",
+      "evidence": "entservices-appmanagers/RDKWindowManager/RDKWindowManager.h; RDK shell shows app z-order and focus state; Thunder returns array of app window objects",
       "verification": "verified",
       "enabled": true,
       "fieldMappings": {
         "clients": {
-          "path": [
-            "apps"
-          ],
+          "path": [],
           "embeddedJson": false
         }
       }

@@ -30,20 +30,33 @@ void collectApplication(Json::Value& section, CollectionContext& context)
         for (const auto& field : provider.fields) {
             Json::Value value = reply.data;
             bool present = true;
+            
+            // Navigate through the path (if any)
             for (const auto& key : field.second.path) {
-                if (!value.isObject() || !value.isMember(key)) { present = false; break; }
-                const auto next = value[key];
-                value = next;
+                if (!value.isObject()) { present = false; break; }
+                if (!value.isMember(key)) { present = false; break; }
+                value = value[key];
             }
+            
+            // If path navigation failed or value is null, skip this field
             if (!present || value.isNull()) {
                 section["errors"].append(provider.id + ": required mapped response field missing");
                 continue;
             }
+            
+            // Handle embedded JSON (convert JSON to string representation)
             if (field.second.embeddedJson) {
-                if (!value.isString()) { section["errors"].append("Embedded JSON contract requires a string"); continue; }
-                try { value = parseJson(value.asString()); }
-                catch (...) { section["errors"].append("Invalid declared embedded JSON field"); continue; }
+                if (!value.isString()) {
+                    // Convert non-string values to JSON string
+                    try { value = Json::Value(Json::writeString(Json::StreamWriterBuilder(), value)); }
+                    catch (...) { section["errors"].append("Failed to serialize JSON field"); continue; }
+                } else {
+                    // Verify it's valid JSON string
+                    try { parseJson(value.asString()); }
+                    catch (...) { section["errors"].append("Invalid declared embedded JSON field"); continue; }
+                }
             }
+            
             recordField(section, field.first, value, provider.evidence);
         }
     }
