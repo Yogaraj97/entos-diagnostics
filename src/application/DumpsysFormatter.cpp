@@ -272,20 +272,20 @@ std::string DumpsysFormatter::buildDumpsysOutput(const Json::Value& sections) {
     output << "       ENTOS-DIAGNOSTICS DUMPSYS OUTPUT\n";
     output << "===========================================\n";
     
-    if (sections.isMember("runtime")) {
-        output << formatRuntimeManager(sections["runtime"]);
+    if (sections.isMember("runtime") && sections["runtime"].isMember("data")) {
+        output << formatRuntimeManager(sections["runtime"]["data"]);
     }
     
-    if (sections.isMember("package")) {
-        output << formatPackageManager(sections["package"]);
+    if (sections.isMember("package") && sections["package"].isMember("data")) {
+        output << formatPackageManager(sections["package"]["data"]);
     }
     
-    if (sections.isMember("resource")) {
-        output << formatResourceMonitor(sections["resource"]);
+    if (sections.isMember("resource") && sections["resource"].isMember("data")) {
+        output << formatResourceMonitor(sections["resource"]["data"]);
     }
     
-    if (sections.isMember("window")) {
-        output << formatWindowManager(sections["window"]);
+    if (sections.isMember("window") && sections["window"].isMember("data")) {
+        output << formatWindowManager(sections["window"]["data"]);
     }
     
     output << "\n";
