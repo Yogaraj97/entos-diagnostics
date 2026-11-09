@@ -1,5 +1,6 @@
 #include "entos/ProviderRegistry.h"
 #include <algorithm>
+#include <fstream>
 #include <memory>
 #include <set>
 #include <stdexcept>
@@ -135,5 +136,56 @@ std::vector<Provider> parseProviders(const Json::Value& root)
         result.push_back(std::move(provider));
     }
     return result;
+}
+
+std::vector<Provider> mergeProviderOverrides(std::vector<Provider> baseProviders, const std::string& overridePath)
+{
+    // Try to load override file from /opt/entos-diagnostics/providers.json.override
+    std::ifstream override_file(overridePath);
+    if (!override_file) {
+        // Override file doesn't exist, return base providers unchanged
+        return baseProviders;
+    }
+    
+    // Read override file
+    std::string override_document;
+    char buffer[4096];
+    while (override_file.read(buffer, sizeof(buffer)) || override_file.gcount()) {
+        override_document.append(buffer, static_cast<std::size_t>(override_file.gcount()));
+        if (override_document.size() > 1024 * 1024) {
+            throw std::runtime_error("Provider override file exceeds size limit");
+        }
+    }
+    
+    // Parse override JSON
+    const auto override_root = parseJson(override_document);
+    const auto override_providers = parseProviders(override_root);
+    
+    // Create a map of override providers by ID for quick lookup
+    std::map<std::string, Provider> override_map;
+    for (const auto& provider : override_providers) {
+        override_map[provider.id] = provider;
+    }
+    
+    // Merge: for each base provider, check if there's an override
+    std::vector<Provider> merged;
+    for (auto provider : baseProviders) {
+        const auto it = override_map.find(provider.id);
+        if (it != override_map.end()) {
+            // Override exists: use the override provider instead
+            merged.push_back(it->second);
+            override_map.erase(it);  // Mark as used
+        } else {
+            // No override: keep base provider
+            merged.push_back(provider);
+        }
+    }
+    
+    // Add any remaining override providers that didn't exist in base
+    for (const auto& [id, provider] : override_map) {
+        merged.push_back(provider);
+    }
+    
+    return merged;
 }
 }

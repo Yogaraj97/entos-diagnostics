@@ -115,7 +115,11 @@ int main(int count, char** arguments)
             document.append(buffer, static_cast<std::size_t>(input.gcount()));
             if (document.size() > 1024 * 1024) throw std::runtime_error("Provider profile exceeds size limit");
         }
-        const auto providers = entos::parseProviders(entos::parseJson(document));
+        auto providers = entos::parseProviders(entos::parseJson(document));
+        
+        // Merge provider overrides from /opt/entos-diagnostics/providers.json.override
+        providers = entos::mergeProviderOverrides(providers, "/opt/entos-diagnostics/providers.json.override");
+        
         std::string token;
         if (!options.tokenFile.empty()) token = entos::readToken(options.tokenFile);
         else if (const auto* environment = std::getenv("TOKEN")) token = environment;

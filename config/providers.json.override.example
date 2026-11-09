@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "providers": [
+    {
+      "id": "app.loaded",
+      "section": "runtime",
+      "callsigns": ["org.rdk.AppManager"],
+      "interfaceVersion": "1",
+      "operation": "getLoadedApps",
+      "readOnly": true,
+      "params": {},
+      "resultType": "object",
+      "evidence": "entservices-appmanagers/AppManager/AppManager.h:Exchange::JAppManager::Register; dumpsys.txt LOADED APPLICATIONS section; curl -d '{\"jsonrpc\":\"2.0\",\"id\":\"3\",\"method\":\"org.rdk.AppManager.getLoadedApps\",\"params\":{}}' http://127.0.0.1:9998/jsonrpc",
+      "verification": "verified",
+      "enabled": true,
+      "fieldMappings": {
+        "apps": {
+          "path": ["loaded_apps"],
+          "embeddedJson": false
+        }
+      }
+    },
+    {
+      "id": "app.installed",
+      "section": "runtime",
+      "callsigns": ["org.rdk.AppManager"],
+      "interfaceVersion": "1",
+      "operation": "getInstalledApps",
+      "readOnly": true,
+      "params": {},
+      "resultType": "object",
+      "evidence": "entservices-appmanagers/AppManager/AppManager.h:Exchange::JAppManager::Register; dumpsys.txt PACKAGE MANAGER Database shows installed packages; curl -d '{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"method\":\"org.rdk.AppManager.getInstalledApps\",\"params\":{}}' http://127.0.0.1:9998/jsonrpc",
+      "verification": "verified",
+      "enabled": true,
+      "fieldMappings": {
+        "apps": {
+          "path": ["installed_apps"],
+          "embeddedJson": false
+        }
+      }
+    },
+    {
+      "id": "package.list",
+      "section": "package",
+      "callsigns": ["org.rdk.AppPackageManager", "org.rdk.PackageManager"],
+      "interfaceVersion": "1",
+      "operation": "listPackages",
+      "readOnly": true,
+      "params": {},
+      "resultType": "object",
+      "evidence": "entservices-appmanagers/PackageManager/PackageManager.h; dumpsys.txt PACKAGE MANAGER Database and Cache sections; curl -d '{\"jsonrpc\":\"2.0\",\"id\":\"1001\",\"method\":\"org.rdk.AppPackageManager.listPackages\",\"params\":{}}' http://127.0.0.1:9998/jsonrpc",
+      "verification": "verified",
+      "enabled": true,
+      "fieldMappings": {
+        "packages": {
+          "path": ["packages"],
+          "embeddedJson": false
+        },
+        "cache": {
+          "path": ["cache"],
+          "embeddedJson": false
+        }
+      }
+    },
+    {
+      "id": "resource.stats",
+      "section": "resource",
+      "callsigns": ["org.rdk.ResourceMonitor"],
+      "interfaceVersion": "1",
+      "operation": "GetStats",
+      "readOnly": true,
+      "params": {},
+      "resultType": "object",
+      "evidence": "entservices-appmanagers/ResourceMonitor/ResourceMonitor.h; dumpsys shows process CPU/memory metrics; curl -d '{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"method\":\"org.rdk.ResourceMonitor.GetStats\",\"params\":{}}' http://127.0.0.1:9998/jsonrpc",
+      "verification": "verified",
+      "enabled": true,
+      "fieldMappings": {
+        "stats": {
+          "path": ["stats"],
+          "embeddedJson": false
+        }
+      }
+    },
+    {
+      "id": "window.clients",
+      "section": "window",
+      "callsigns": ["org.rdk.RDKWindowManager"],
+      "interfaceVersion": "1",
+      "operation": "getApps",
+      "readOnly": true,
+      "params": {},
+      "resultType": "object",
+      "evidence": "entservices-appmanagers/RDKWindowManager/RDKWindowManager.h; RDK shell shows app z-order and focus state; curl -d '{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"method\":\"org.rdk.RDKWindowManager.getApps\",\"params\":{}}' http://127.0.0.1:9998/jsonrpc",
+      "verification": "verified",
+      "enabled": true,
+      "fieldMappings": {
+        "clients": {
+          "path": ["apps"],
+          "embeddedJson": false
+        }
+      }
+    }
+  ]
+}

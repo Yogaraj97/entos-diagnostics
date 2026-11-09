@@ -30,4 +30,5 @@ struct Provider {
 const std::vector<SectionContract>& sectionContracts();
 Json::Value parseJson(const std::string& text);
 std::vector<Provider> parseProviders(const Json::Value& root);
+std::vector<Provider> mergeProviderOverrides(std::vector<Provider> baseProviders, const std::string& overridePath);
 }
