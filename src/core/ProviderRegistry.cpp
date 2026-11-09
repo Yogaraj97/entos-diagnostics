@@ -14,7 +14,7 @@ const std::vector<SectionContract>& sectionContracts()
         {"iui", "DYNAMIC IUI MANAGER", "ASAppManager", {"enabled", "selectorRFC"}},
         {"forwarded-launch", "FORWARDED LAUNCH MANAGER", "ASAppManager", {"enabled", "pendingLaunch"}},
         {"input", "INPUT HANDLER", "RDKWindowManager", {"devices", "activeKeymap"}},
-        {"package", "PACKAGE MANAGER", "AppPackageManager", {"packages", "installer", "cache", "mounts"}},
+        {"package", "PACKAGE MANAGER", "AppPackageManager", {"packages", "installer", "cache", "mounts", "platformIds", "storageDir", "cacheSize", "cacheLimit", "cacheEntries", "downloadThreads", "inProgress", "pending"}},
         {"pathway", "PATHWAY MANAGER", "ASAppManager", {"enabled", "lastFetch", "installations"}},
         {"platform", "PLATFORM", "Platform", {"kernel", "uptime", "memory", "filesystems", "firmware"}},
         {"power", "POWER STATE MANAGER", "Platform", {"currentState", "previousState"}},
