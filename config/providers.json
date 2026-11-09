@@ -55,7 +55,8 @@
       "readOnly": true,
       "params": {},
       "resultType": "object",
-      "evidence": "entservices-appmanagers/PackageManager/PackageManager.h; dumpsys.txt PACKAGE MANAGER Database and Cache sections; Thunder returns nested object with packageInfo and downloaderInfo",
+      "resultIsEmbeddedJson": true,
+      "evidence": "entservices-appmanagers/PackageManager/PackageManager.h; dumpsys.txt PACKAGE MANAGER Database and Cache sections; Thunder wraps result as JSON string with packageInfo and downloaderInfo objects",
       "verification": "verified",
       "enabled": true,
       "fieldMappings": {

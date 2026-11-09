@@ -21,14 +21,27 @@ void collectApplication(Json::Value& section, CollectionContext& context)
             section["errors"].append(provider.id + ": " + reply.error);
             continue;
         }
-        if ((provider.resultType == "object" && !reply.data.isObject())
-                || (provider.resultType == "array" && !reply.data.isArray())) {
+        
+        // Handle embedded JSON results (e.g., Thunder wraps result as JSON string)
+        Json::Value data = reply.data;
+        if (provider.resultIsEmbeddedJson && data.isString()) {
+            try {
+                data = parseJson(data.asString());
+            } catch (...) {
+                section["errors"].append(provider.id + ": failed to parse embedded JSON result");
+                section["status"] = "error";
+                continue;
+            }
+        }
+        
+        if ((provider.resultType == "object" && !data.isObject())
+                || (provider.resultType == "array" && !data.isArray())) {
             section["errors"].append(provider.id + ": result violates configured response contract");
             section["status"] = "error";
             continue;
         }
         for (const auto& field : provider.fields) {
-            Json::Value value = reply.data;
+            Json::Value value = data;
             bool present = true;
             
             // Navigate through the path (if any)

@@ -92,6 +92,7 @@ std::vector<Provider> parseProviders(const Json::Value& root)
             throw std::runtime_error("Invalid provider parameters or callsigns");
         provider.params = entry["params"];
         provider.enabled = entry["enabled"].asBool();
+        provider.resultIsEmbeddedJson = entry.isMember("resultIsEmbeddedJson") && entry["resultIsEmbeddedJson"].asBool();
         if (provider.enabled && entry["verification"].asString() != "verified")
             throw std::runtime_error("Unverified provider cannot be enabled");
         for (const auto& callsign : entry["callsigns"]) {

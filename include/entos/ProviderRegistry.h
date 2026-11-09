@@ -25,6 +25,7 @@ struct Provider {
     std::string resultType;
     std::string evidence;
     bool enabled = false;
+    bool resultIsEmbeddedJson = false;
     std::map<std::string, Mapping> fields;
 };
 const std::vector<SectionContract>& sectionContracts();
