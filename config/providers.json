@@ -54,13 +54,75 @@
       "operation": "listPackages",
       "readOnly": true,
       "params": {},
-      "resultType": "array",
-      "evidence": "entservices-appmanagers/PackageManager/PackageManager.h; dumpsys.txt PACKAGE MANAGER Database and Cache sections; Thunder returns array of package objects",
+      "resultType": "object",
+      "evidence": "entservices-appmanagers/PackageManager/PackageManager.h; dumpsys.txt PACKAGE MANAGER Database and Cache sections; Thunder returns nested object with packageInfo and downloaderInfo",
       "verification": "verified",
       "enabled": true,
       "fieldMappings": {
+        "platformIds": {
+          "path": [
+            "packageInfo",
+            "compatiblePlatformIds"
+          ],
+          "embeddedJson": false
+        },
+        "storageDir": {
+          "path": [
+            "packageInfo",
+            "storageDir"
+          ],
+          "embeddedJson": false
+        },
         "packages": {
-          "path": [],
+          "path": [
+            "packageInfo",
+            "packages"
+          ],
+          "embeddedJson": false
+        },
+        "cacheSize": {
+          "path": [
+            "packageInfo",
+            "packageCache",
+            "cacheSize"
+          ],
+          "embeddedJson": false
+        },
+        "cacheLimit": {
+          "path": [
+            "packageInfo",
+            "packageCache",
+            "cacheLimit"
+          ],
+          "embeddedJson": false
+        },
+        "cacheEntries": {
+          "path": [
+            "packageInfo",
+            "packageCache",
+            "entries"
+          ],
+          "embeddedJson": false
+        },
+        "downloadThreads": {
+          "path": [
+            "downloaderInfo",
+            "downloadThreads"
+          ],
+          "embeddedJson": false
+        },
+        "inProgress": {
+          "path": [
+            "downloaderInfo",
+            "inProgress"
+          ],
+          "embeddedJson": false
+        },
+        "pending": {
+          "path": [
+            "downloaderInfo",
+            "pending"
+          ],
           "embeddedJson": false
         }
       }

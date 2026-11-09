@@ -148,14 +148,78 @@ std::string DumpsysFormatter::formatPackageManager(const Json::Value& data) {
     
     // Installer section
     output << "    Installer:\n";
-    output << "        Download Threads: " << data.get("downloadThreads", "2").asString() << "\n";
-    output << "        Requests in Progress: " << data.get("requestsInProgress", "None").asString() << "\n";
-    output << "        Requests Pending: " << data.get("requestsPending", "None").asString() << "\n";
+    int downloadThreads = data.get("downloadThreads", 0).asInt();
+    output << "        Download Threads: " << downloadThreads << "\n";
+    
+    // In-progress requests
+    if (data.isMember("inProgress") && data["inProgress"].isArray() && data["inProgress"].size() > 0) {
+        output << "        Requests in Progress:\n";
+        for (const auto& request : data["inProgress"]) {
+            std::string id = request.get("id", "unknown").asString();
+            std::string url = request.get("url", "").asString();
+            int rateLimit = request.get("rateLimit", 0).asInt();
+            
+            output << "            " << id << " -\n";
+            output << "              Url: " << url << "\n";
+            output << "              Status: Downloading\n";
+            output << "              RateLimit: ";
+            if (rateLimit <= 0)
+                output << "none\n";
+            else
+                output << rateLimit << " bps\n";
+            
+            if (request.isMember("progress") && request["progress"].isInt()) {
+                output << "              Progress: " << request["progress"].asInt() << "%\n";
+            }
+        }
+    } else {
+        output << "        Requests in Progress: None\n";
+    }
+    
+    // Pending requests
+    if (data.isMember("pending") && data["pending"].isArray() && data["pending"].size() > 0) {
+        output << "        Requests Pending:\n";
+        for (const auto& request : data["pending"]) {
+            std::string id = request.get("id", "unknown").asString();
+            std::string url = request.get("url", "").asString();
+            int rateLimit = request.get("rateLimit", 0).asInt();
+            
+            output << "            " << id << " -\n";
+            output << "              Url: " << url << "\n";
+            output << "              Status: Pending\n";
+            output << "              RateLimit: ";
+            if (rateLimit <= 0)
+                output << "none\n";
+            else
+                output << rateLimit << " bps\n";
+        }
+    } else {
+        output << "        Requests Pending: None\n";
+    }
     
     // Package Database section
     output << "    Package Database:\n";
-    output << "        Compatible Platform Ids: " << data.get("platformId", "N/A").asString() << "\n";
-    output << "        Storage Dir: " << data.get("storageDir", "/media/apps/sky/packages").asString() << "\n";
+    
+    // Platform IDs
+    output << "        Compatible Platform Ids: ";
+    if (data.isMember("platformIds") && data["platformIds"].isArray()) {
+        const auto& platformIds = data["platformIds"];
+        if (platformIds.size() == 0) {
+            output << "N/A\n";
+        } else {
+            for (Json::Value::ArrayIndex i = 0; i < platformIds.size(); ++i) {
+                if (i > 0) output << ", ";
+                output << platformIds[static_cast<int>(i)].asString();
+            }
+            output << "\n";
+        }
+    } else {
+        output << "N/A\n";
+    }
+    
+    // Storage dir
+    std::string storageDir = data.get("storageDir", "N/A").asString();
+    output << "        Storage Dir: \"" << storageDir << "\"\n";
     output << "        RALF Packages Supported: true\n";
     output << "        Package Mount Mode: auto\n";
     output << "        Packages:\n";
@@ -165,39 +229,64 @@ std::string DumpsysFormatter::formatPackageManager(const Json::Value& data) {
     output << "            ------------------------------------------------- | ---------------- | --------------\n";
     
     if (data.isMember("packages") && data["packages"].isArray()) {
-        for (const auto& pkg : data["packages"]) {
-            std::string appName = pkg.get("app", "--").asString();
-            std::string version = pkg.get("version", "--").asString();
-            std::string userId = pkg.get("userId", "--").asString();
-            
-            // Pad app name to 51 characters
-            appName = padColumn(appName, 51);
-            version = padColumn(version, 18);
-            
-            output << "            " << appName << "| " << version << "| " << userId << "\n";
+        const auto& packages = data["packages"];
+        if (packages.size() == 0) {
+            output << "            (No packages)\n";
+        } else {
+            for (const auto& pkg : packages) {
+                std::string app = pkg.get("app", "unknown").asString();
+                std::string version = pkg.get("version", "unknown").asString();
+                int userId = pkg.get("userId", -1).asInt();
+                std::string userName = pkg.get("userName", "").asString();
+                
+                std::string userInfo;
+                if (userId >= 0) {
+                    userInfo = std::to_string(userId);
+                    if (!userName.empty()) {
+                        userInfo += " " + userName;
+                    }
+                } else {
+                    userInfo = "N/A";
+                }
+                
+                output << "            " << std::left << std::setw(51) << app
+                       << std::left << std::setw(18) << version
+                       << userInfo << "\n";
+            }
         }
     }
     
     // Package Cache section
     output << "    Package Cache:\n";
-    output << "        Cache Size: " << data.get("cacheSize", "64 MB").asString() << "\n";
-    output << "        Cache Limit: " << data.get("cacheLimit", "100 MB").asString() << "\n";
+    std::string cacheSize = data.get("cacheSize", "0 MB").asString();
+    std::string cacheLimit = data.get("cacheLimit", "100 MB").asString();
+    output << "        Cache Size: " << cacheSize << "\n";
+    output << "        Cache Limit: " << cacheLimit << "\n";
     output << "        Entries:\n";
     
     output << "            App                           | Version       | Size         | Last Used | Format  | Path\n";
     output << "            ----------------------------- | ------------- | ------------ | --------- | ------- | ---------------------------------\n";
     
-    if (data.isMember("cache") && data["cache"].isArray()) {
-        for (const auto& entry : data["cache"]) {
-            std::string app = padColumn(entry.get("app", "--").asString(), 29);
-            std::string version = padColumn(entry.get("version", "--").asString(), 13);
-            std::string size = padColumn(entry.get("size", "--").asString(), 12);
-            std::string lastUsed = padColumn(entry.get("lastUsed", "--").asString(), 9);
-            std::string format = padColumn(entry.get("format", "--").asString(), 7);
-            std::string path = entry.get("path", "--").asString();
-            
-            output << "            " << app << "| " << version << "| " << size << "| " 
-                   << lastUsed << "| " << format << "| " << path << "\n";
+    if (data.isMember("cacheEntries") && data["cacheEntries"].isArray()) {
+        const auto& cacheEntries = data["cacheEntries"];
+        if (cacheEntries.size() == 0) {
+            output << "            (No cached packages)\n";
+        } else {
+            for (const auto& entry : cacheEntries) {
+                std::string app = entry.get("app", "unknown").asString();
+                std::string version = entry.get("version", "unknown").asString();
+                std::string size = entry.get("size", "0 B").asString();
+                std::string lastUsed = entry.get("lastUsed", "unknown").asString();
+                std::string path = entry.get("path", "").asString();
+                std::string format = "ZIP";
+                
+                output << "            " << std::left << std::setw(31) << app
+                       << std::left << std::setw(15) << version
+                       << std::left << std::setw(14) << size
+                       << std::left << std::setw(11) << lastUsed
+                       << std::left << std::setw(9) << format
+                       << "\"" << path << "\"\n";
+            }
         }
     }
     
