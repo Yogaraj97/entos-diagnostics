@@ -52,11 +52,6 @@ std::vector<Provider> parseProviders(const Json::Value& root)
 {
     if (!root.isObject() || !root["schemaVersion"].isInt() || root["schemaVersion"].asInt() != 1
             || !root["providers"].isArray()) throw std::runtime_error("Invalid provider schema version or list");
-    static const std::set<std::string> allowed = {
-        "getInstalledApps", "getLoadedApps", "listPackages", "getApps", "GetStats",
-        "GetMemInfo", "GetSwapUsed", "GetFlashSpace", "getMaxRunningApps",
-        "getMaxHibernatedApps", "getMaxHibernatedFlashUsage", "getMaxInactiveRamUsage"
-    };
     std::set<std::string> identities;
     std::vector<Provider> result;
     for (const auto& entry : root["providers"]) {
@@ -65,6 +60,8 @@ std::vector<Provider> parseProviders(const Json::Value& root)
             if (!entry[key].isString() || entry[key].asString().empty())
                 throw std::runtime_error("Missing provider contract field");
         }
+        if (entry["readOnly"] != Json::Value(true))
+            throw std::runtime_error("Operation must be read-only");
         Provider provider;
         provider.id = entry["id"].asString();
         provider.section = entry["section"].asString();
@@ -77,8 +74,6 @@ std::vector<Provider> parseProviders(const Json::Value& root)
         if (entry["verification"] != "verified" && entry["verification"] != "provisional")
             throw std::runtime_error("Invalid verification status");
         if (!identities.insert(provider.id).second) throw std::runtime_error("Duplicate provider ID");
-        if (!allowed.count(provider.operation) || entry["readOnly"] != Json::Value(true))
-            throw std::runtime_error("Operation is not in the read-only allowlist");
         if (!std::all_of(provider.version.begin(), provider.version.end(), [](unsigned char value) {
             return value >= '0' && value <= '9';
         })) throw std::runtime_error("Invalid interface version");
