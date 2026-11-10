@@ -85,6 +85,11 @@ Options parse(int count, char** arguments)
 int main(int count, char** arguments)
 {
     try {
+        // Show help if no arguments provided
+        if (count == 1) {
+            usage();
+            return 0;
+        }
         for (int index = 1; index < count; ++index) {
             if (std::string(arguments[index]) == "--help") { usage(); return 0; }
         }

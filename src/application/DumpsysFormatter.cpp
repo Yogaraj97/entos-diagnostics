@@ -296,6 +296,135 @@ std::string DumpsysFormatter::formatWindowManager(const Json::Value& data) {
     return output.str();
 }
 
+std::string DumpsysFormatter::formatPlatform(const Json::Value& section) {
+    std::ostringstream output;
+    
+    output << "PLATFORM:\n";
+    output << "    Status: " << section["status"].asString();
+    
+    // Show reason if partial or error
+    const auto& errors = section["errors"];
+    const auto& coverage = section["coverage"];
+    
+    if (section["status"] != "ok" && errors.size() > 0) {
+        output << " - ";
+        for (const auto& error : errors) {
+            output << error.asString();
+            break;
+        }
+    }
+    output << "\n\n";
+    
+    const auto& data = section["data"];
+    
+    // Kernel Information
+    if (data.isMember("kernel") && data["kernel"].isObject()) {
+        const auto& kernel = data["kernel"];
+        output << "    KERNEL INFORMATION:\n";
+        output << "        System:        " << kernel.get("system", "N/A").asString() << "\n";
+        output << "        Release:       " << kernel.get("release", "N/A").asString() << "\n";
+        output << "        Machine:       " << kernel.get("machine", "N/A").asString() << "\n";
+        output << "\n";
+    }
+    
+    // Uptime
+    if (data.isMember("uptime")) {
+        double uptime = data["uptime"].asDouble();
+        int days = static_cast<int>(uptime / 86400);
+        int hours = static_cast<int>((uptime - days * 86400) / 3600);
+        int mins = static_cast<int>((uptime - days * 86400 - hours * 3600) / 60);
+        output << "    SYSTEM UPTIME:\n";
+        output << "        " << days << "d " << hours << "h " << mins << "m (" << uptime << "s)\n";
+        output << "\n";
+    }
+    
+    // Memory Information
+    if (data.isMember("memory") && data["memory"].isObject()) {
+        const auto& memory = data["memory"];
+        output << "    MEMORY INFORMATION:\n";
+        
+        // Total and Available
+        long long memTotal = 0, memAvail = 0, memFree = 0, memUsed = 0;
+        if (memory.isMember("MemTotal")) {
+            memTotal = memory["MemTotal"]["value"].asInt64() * 1024;
+        }
+        if (memory.isMember("MemAvailable")) {
+            memAvail = memory["MemAvailable"]["value"].asInt64() * 1024;
+        }
+        if (memory.isMember("MemFree")) {
+            memFree = memory["MemFree"]["value"].asInt64() * 1024;
+        }
+        memUsed = memTotal - memFree;
+        
+        output << "        Total Memory:        " << (memTotal / 1048576) << " MB\n";
+        output << "        Available Memory:    " << (memAvail / 1048576) << " MB\n";
+        output << "        Used Memory:         " << (memUsed / 1048576) << " MB\n";
+        output << "        Free Memory:         " << (memFree / 1048576) << " MB\n";
+        
+        // Cached and Buffers
+        if (memory.isMember("Cached") && memory.isMember("Buffers")) {
+            long long cached = memory["Cached"]["value"].asInt64() * 1024;
+            long long buffers = memory["Buffers"]["value"].asInt64() * 1024;
+            output << "        Cached:              " << (cached / 1048576) << " MB\n";
+            output << "        Buffers:             " << (buffers / 1048576) << " MB\n";
+        }
+        
+        // Swap
+        if (memory.isMember("SwapTotal") && memory.isMember("SwapFree")) {
+            long long swapTotal = memory["SwapTotal"]["value"].asInt64() * 1024;
+            long long swapFree = memory["SwapFree"]["value"].asInt64() * 1024;
+            long long swapUsed = swapTotal - swapFree;
+            output << "        Swap Total:          " << (swapTotal / 1048576) << " MB\n";
+            output << "        Swap Used:           " << (swapUsed / 1048576) << " MB\n";
+            output << "        Swap Free:           " << (swapFree / 1048576) << " MB\n";
+        }
+        
+        // Memory Breakdown
+        output << "\n        Memory Breakdown:\n";
+        output << "            Active:              " << (memory.get("Active", Json::Value(Json::objectValue)).get("value", 0).asInt64() / 1024) << " MB\n";
+        output << "            Inactive:            " << (memory.get("Inactive", Json::Value(Json::objectValue)).get("value", 0).asInt64() / 1024) << " MB\n";
+        output << "            Shmem:               " << (memory.get("Shmem", Json::Value(Json::objectValue)).get("value", 0).asInt64() / 1024) << " MB\n";
+        output << "            Slab:                " << (memory.get("Slab", Json::Value(Json::objectValue)).get("value", 0).asInt64() / 1024) << " MB\n";
+        output << "\n";
+    }
+    
+    // Filesystem Information
+    if (data.isMember("filesystems") && data["filesystems"].isArray()) {
+        output << "    FILESYSTEMS:\n";
+        output << "        Path         | Status      | Total (MB)  | Available (MB)\n";
+        output << "        ------------ | ----------- | ----------- | --------------\n";
+        
+        for (const auto& fs : data["filesystems"]) {
+            std::string path = padColumn(fs.get("path", "/").asString(), 12);
+            std::string status = padColumn(fs.get("status", "unknown").asString(), 11);
+            long long total = fs.get("totalBytes", 0).asInt64() / 1048576;
+            long long avail = fs.get("availableBytes", 0).asInt64() / 1048576;
+            
+            output << "        " << path << "| " << status << "| ";
+            output << std::right << std::setw(11) << total << " | ";
+            output << std::right << std::setw(14) << avail << "\n";
+        }
+        output << "\n";
+    }
+    
+    // Missing fields information
+    output << "    MISSING FIELDS:\n";
+    bool hasMissing = false;
+    for (const auto& fieldName : coverage.getMemberNames()) {
+        const auto& field = coverage[fieldName];
+        if (field["status"] != "available") {
+            output << "        " << fieldName << ": " << field.get("reason", "Not available").asString() << "\n";
+            hasMissing = true;
+        }
+    }
+    if (!hasMissing) {
+        output << "        None\n";
+    }
+    output << "\n";
+    
+    return output.str();
+}
+
 std::string DumpsysFormatter::buildDumpsysOutput(const Json::Value& sections) {
     std::ostringstream output;
     

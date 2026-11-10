@@ -20,6 +20,9 @@ public:
     // Window Manager formatting
     static std::string formatWindowManager(const Json::Value& data);
     
+    // Platform formatting
+    static std::string formatPlatform(const Json::Value& section);
+    
     // Main dumpsys output builder
     static std::string buildDumpsysOutput(const Json::Value& sections);
 

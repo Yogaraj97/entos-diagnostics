@@ -143,6 +143,9 @@ std::string textOutput(const Json::Value& snapshot)
         } else if (sectionId == "resource" && section["data"].isMember("stats")) {
             output << DumpsysFormatter::formatResourceMonitor(section["data"]);
             continue;
+        } else if (sectionId == "platform") {
+            output << DumpsysFormatter::formatPlatform(section);
+            continue;
         }
         
         // Default formatting for other sections
@@ -165,29 +168,46 @@ std::string textOutput(const Json::Value& snapshot)
                           << std::setw(static_cast<int>(modeWidth)) << display(plugin["mode"])
                            << display(plugin["hosts"]) << '\n';
                 }
-            } else if (data.isArray() && (name == "apps" || name == "packages" || name == "clients")) {
+            } else if (data.isArray()) {
+                // Handle all arrays - check if array contains objects
+                bool has_objects = false;
                 std::vector<std::string> columns;
                 for (const auto& row : data) {
-                    if (!row.isObject()) continue;
-                    for (const auto& column : row.getMemberNames()) {
-                        if (std::find(columns.begin(), columns.end(), column) == columns.end()) columns.push_back(column);
+                    if (row.isObject()) {
+                        has_objects = true;
+                        for (const auto& column : row.getMemberNames()) {
+                            if (std::find(columns.begin(), columns.end(), column) == columns.end()) columns.push_back(column);
+                        }
                     }
                 }
-                output << "    " << display(name) << ":\n";
-                std::vector<std::size_t> widths;
-                for (const auto& column : columns) {
-                    auto width = display(column).size();
-                    for (const auto& row : data) if (row.isObject()) width = std::max(width, display(row[column]).size());
-                    widths.push_back(width);
-                }
-                for (std::size_t index = 0; index < columns.size(); ++index)
-                    output << "    " << std::left << std::setw(static_cast<int>(widths[index])) << display(columns[index]) << " |";
-                output << '\n';
-                for (const auto& row : data) {
-                    if (!row.isObject()) { output << "    " << display(row) << '\n'; continue; }
+                
+                if (has_objects && !columns.empty()) {
+                    // Array of objects - display as table
+                    output << "    " << display(name) << ":\n";
+                    std::vector<std::size_t> widths;
+                    for (const auto& column : columns) {
+                        auto width = display(column).size();
+                        for (const auto& row : data) if (row.isObject()) width = std::max(width, display(row[column]).size());
+                        widths.push_back(width);
+                    }
                     for (std::size_t index = 0; index < columns.size(); ++index)
-                        output << "    " << std::left << std::setw(static_cast<int>(widths[index])) << display(row[columns[index]]) << " |";
+                        output << "    " << std::left << std::setw(static_cast<int>(widths[index])) << display(columns[index]) << " |";
                     output << '\n';
+                    for (const auto& row : data) {
+                        if (!row.isObject()) { output << "    " << display(row) << '\n'; continue; }
+                        for (std::size_t index = 0; index < columns.size(); ++index)
+                            output << "    " << std::left << std::setw(static_cast<int>(widths[index])) << display(row[columns[index]]) << " |";
+                        output << '\n';
+                    }
+                } else if (data.size() > 0) {
+                    // Array of primitives or empty - display as list
+                    output << "    " << display(name) << ":\n";
+                    for (const auto& item : data) {
+                        output << "        - " << display(item) << '\n';
+                    }
+                } else {
+                    // Empty array
+                    output << "    " << display(name) << ": []\n";
                 }
             } else output << "    " << display(name) << ": " << display(data) << '\n';
         }

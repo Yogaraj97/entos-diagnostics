@@ -1,0 +1,56 @@
+{
+  "filesystems": [
+    {
+      "availableBytes": 0,
+      "path": "/",
+      "status": "available",
+      "totalBytes": 234094592
+    }
+  ],
+  "kernel": {
+    "machine": "aarch64",
+    "release": "5.4.186-1-6",
+    "system": "Linux"
+  },
+  "memory": {
+    "Active": {"unit": "kB", "value": 1313924},
+    "Active(anon)": {"unit": "kB", "value": 600400},
+    "Active(file)": {"unit": "kB", "value": 713524},
+    "AnonPages": {"unit": "kB", "value": 529816},
+    "Bounce": {"unit": "kB", "value": 0},
+    "Buffers": {"unit": "kB", "value": 868896},
+    "Cached": {"unit": "kB", "value": 740656},
+    "CmaFree": {"unit": "kB", "value": 23500},
+    "CmaTotal": {"unit": "kB", "value": 561152},
+    "CommitLimit": {"unit": "kB", "value": 2960452},
+    "Committed_AS": {"unit": "kB", "value": 9200652},
+    "Dirty": {"unit": "kB", "value": 64},
+    "Inactive": {"unit": "kB", "value": 825220},
+    "Inactive(anon)": {"unit": "kB", "value": 143848},
+    "Inactive(file)": {"unit": "kB", "value": 681372},
+    "KReclaimable": {"unit": "kB", "value": 85372},
+    "KernelStack": {"unit": "kB", "value": 21520},
+    "Mapped": {"unit": "kB", "value": 284456},
+    "MemAvailable": {"unit": "kB", "value": 1777336},
+    "MemFree": {"unit": "kB", "value": 348596},
+    "MemTotal": {"unit": "kB", "value": 2960460},
+    "Mlocked": {"unit": "kB", "value": 32},
+    "NFS_Unstable": {"unit": "kB", "value": 0},
+    "PageTables": {"unit": "kB", "value": 11164},
+    "Percpu": {"unit": "kB", "value": 4304},
+    "SReclaimable": {"unit": "kB", "value": 85372},
+    "SUnreclaim": {"unit": "kB", "value": 141860},
+    "Shmem": {"unit": "kB", "value": 214676},
+    "Slab": {"unit": "kB", "value": 227232},
+    "SwapCached": {"unit": "kB", "value": 0},
+    "SwapFree": {"unit": "kB", "value": 1480224},
+    "SwapTotal": {"unit": "kB", "value": 1480224},
+    "Unevictable": {"unit": "kB", "value": 32},
+    "VmallocChunk": {"unit": "kB", "value": 0},
+    "VmallocTotal": {"unit": "kB", "value": 262930368},
+    "VmallocUsed": {"unit": "kB", "value": 46452},
+    "Writeback": {"unit": "kB", "value": 0},
+    "WritebackTmp": {"unit": "kB", "value": 0}
+  },
+  "uptime": 1179.47
+}
