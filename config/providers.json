@@ -108,6 +108,27 @@
           "embeddedJson": false
         }
       }
+    },
+    {
+      "id": "input.devices",
+      "section": "input",
+      "callsigns": [
+        "org.rdk.RDKWindowManager"
+      ],
+      "interfaceVersion": "1",
+      "operation": "getInputDevices",
+      "readOnly": true,
+      "params": {},
+      "resultType": "array",
+      "evidence": "RDK input device enumeration from /proc/bus/input/devices",
+      "verification": "verified",
+      "enabled": true,
+      "fieldMappings": {
+        "devices": {
+          "path": [],
+          "embeddedJson": false
+        }
+      }
     }
   ]
 }

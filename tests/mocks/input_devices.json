@@ -1,0 +1,67 @@
+[
+  {
+    "Name": "sky_fp_input",
+    "Bus": "0000",
+    "Vendor": "0000",
+    "Product": "0000",
+    "Version": "0000",
+    "Phys": "sky-xione_fp/input1",
+    "Sysfs": "/devices/virtual/input/input0",
+    "Handlers": "kbd event0",
+    "KEY": "40000000 0 0 0 0 0",
+    "MSC": "10",
+    "Uniq": ""
+  },
+  {
+    "Name": "brcm-IR-uinput",
+    "Bus": "0003",
+    "Vendor": "1234",
+    "Product": "fedc",
+    "Version": "0001",
+    "Phys": "",
+    "Sysfs": "/devices/virtual/input/input1",
+    "Handlers": "kbd event1",
+    "KEY": "ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff",
+    "MSC": "0",
+    "Uniq": ""
+  },
+  {
+    "Name": "tools-key-simulator",
+    "Bus": "0003",
+    "Vendor": "beef",
+    "Product": "feed",
+    "Version": "0001",
+    "Phys": "",
+    "Sysfs": "/devices/virtual/input/input2",
+    "Handlers": "sysrq kbd event2",
+    "KEY": "ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff",
+    "MSC": "0",
+    "Uniq": ""
+  },
+  {
+    "Name": "ASSystem virtual RCU device",
+    "Bus": "0000",
+    "Vendor": "0000",
+    "Product": "0000",
+    "Version": "0000",
+    "Phys": "",
+    "Sysfs": "/devices/virtual/input/input3",
+    "Handlers": "kbd event3",
+    "KEY": "19c0000 0 0 2000 0 0 0 0 2 35180000 0 20c840 80008 48000000 0",
+    "MSC": "0",
+    "Uniq": ""
+  },
+  {
+    "Name": "IPControlDaemon",
+    "Bus": "0006",
+    "Vendor": "293c",
+    "Product": "dc64",
+    "Version": "0001",
+    "Phys": "",
+    "Sysfs": "/devices/virtual/input/input4",
+    "Handlers": "kbd event4",
+    "KEY": "fc0000 0 0 2000 0 0 0 0 6 7980000 0 20ffc0 188441a fabfffff dffffffe",
+    "MSC": "0",
+    "Uniq": ""
+  }
+]

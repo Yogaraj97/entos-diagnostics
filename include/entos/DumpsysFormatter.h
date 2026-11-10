@@ -23,6 +23,9 @@ public:
     // Platform formatting
     static std::string formatPlatform(const Json::Value& section);
     
+    // Input Handler formatting
+    static std::string formatInputHandler(const Json::Value& section);
+    
     // Main dumpsys output builder
     static std::string buildDumpsysOutput(const Json::Value& sections);
 

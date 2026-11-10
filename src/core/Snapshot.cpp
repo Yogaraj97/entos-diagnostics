@@ -119,6 +119,20 @@ Json::Value sanitize(const Json::Value& value, const std::vector<std::string>& s
 static std::string display(const Json::Value& value)
 {
     if (value.isNull()) return "--";
+    if (value.isArray()) {
+        if (value.empty()) return "[]";
+        // For arrays, return type info instead of trying to serialize
+        return "[" + std::to_string(value.size()) + " items]";
+    }
+    if (value.isBool()) return value.asBool() ? "true" : "false";
+    if (value.isInt()) return std::to_string(value.asInt());
+    if (value.isUInt()) return std::to_string(value.asUInt());
+    if (value.isInt64()) return std::to_string(value.asInt64());
+    if (value.isUInt64()) return std::to_string(value.asUInt64());
+    if (value.isDouble()) return std::to_string(value.asDouble());
+    if (value.isString()) return value.asString();
+    
+    // For objects, only serialize if small enough to avoid crash
     Json::StreamWriterBuilder writer;
     writer["indentation"] = "";
     return Json::writeString(writer, value);
@@ -145,6 +159,9 @@ std::string textOutput(const Json::Value& snapshot)
             continue;
         } else if (sectionId == "platform") {
             output << DumpsysFormatter::formatPlatform(section);
+            continue;
+        } else if (sectionId == "input") {
+            output << DumpsysFormatter::formatInputHandler(section);
             continue;
         }
         

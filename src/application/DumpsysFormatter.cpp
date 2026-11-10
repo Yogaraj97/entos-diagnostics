@@ -275,22 +275,44 @@ std::string DumpsysFormatter::formatWindowManager(const Json::Value& data) {
     output << createSectionHeader("WINDOW MANAGER");
     
     output << "    Window Clients:\n";
-    output << "        App                           | State       | Layer | Z-Order\n";
-    output << "        ----------------------------- | ----------- | ----- | -------\n";
+    output << "        App                           | Focused | Visible | Z-Order\n";
+    output << "        ----------------------------- | ------- | ------- | -------\n";
     
+    bool hasData = false;
+    
+    // Check for different possible field names for clients/apps
     if (data.isMember("clients") && data["clients"].isArray()) {
+        hasData = true;
         for (const auto& client : data["clients"]) {
-            std::string app = padColumn(client.get("app", "--").asString(), 29);
-            std::string state = padColumn(client.get("state", "--").asString(), 11);
-            std::string layer = padColumn(client.get("layer", "--").asString(), 5);
-            std::string zorder = client.get("zorder", "--").asString();
+            std::string app = padColumn(client.get("app", client.get("appId", "--")).asString(), 29);
+            std::string focused = client.get("focused", false).asBool() ? "yes" : "no";
+            std::string visible = client.get("visible", false).asBool() ? "yes" : "no";
+            std::string zorder = std::to_string(client.get("zorder", client.get("zOrder", 0)).asInt());
             
-            output << "        " << app << "| " << state << "| " << layer << "| " << zorder << "\n";
+            output << "        " << app << "| " << padColumn(focused, 7) << "| " 
+                   << padColumn(visible, 7) << "| " << zorder << "\n";
+        }
+    } else if (data.isMember("apps") && data["apps"].isArray()) {
+        hasData = true;
+        for (const auto& app : data["apps"]) {
+            std::string appName = padColumn(app.get("appId", "--").asString(), 29);
+            std::string focused = app.get("focused", false).asBool() ? "yes" : "no";
+            std::string visible = app.get("visible", false).asBool() ? "yes" : "no";
+            std::string zorder = std::to_string(app.get("zOrder", 0).asInt());
+            
+            output << "        " << appName << "| " << padColumn(focused, 7) << "| " 
+                   << padColumn(visible, 7) << "| " << zorder << "\n";
         }
     }
     
-    if (data.isMember("focusedApp")) {
+    if (!hasData) {
+        output << "        (No window clients found)\n";
+    }
+    
+    if (data.isMember("focusedApp") && !data["focusedApp"].isNull()) {
         output << "\n    Focused Application: " << data["focusedApp"].asString() << "\n";
+    } else if (data.isMember("focused_app_id") && !data["focused_app_id"].isNull()) {
+        output << "\n    Focused Application: " << data["focused_app_id"].asString() << "\n";
     }
     
     return output.str();
@@ -419,6 +441,90 @@ std::string DumpsysFormatter::formatPlatform(const Json::Value& section) {
     }
     if (!hasMissing) {
         output << "        None\n";
+    }
+    output << "\n";
+    
+    return output.str();
+}
+
+std::string DumpsysFormatter::formatInputHandler(const Json::Value& section) {
+    std::ostringstream output;
+    
+    output << "INPUT HANDLER:\n";
+    output << "    Status: " << section["status"].asString() << "\n\n";
+    
+    const auto& data = section["data"];
+    const auto& coverage = section["coverage"];
+    
+    if (data.isMember("devices") && data["devices"].isArray()) {
+        const auto& devices = data["devices"];
+        
+        if (devices.empty()) {
+            output << "    No input devices found.\n";
+        } else {
+            output << "    INPUT DEVICES:\n";
+            output << "        Found " << devices.size() << " device(s)\n\n";
+            
+            for (size_t i = 0; i < devices.size(); ++i) {
+                const auto& device = devices[static_cast<int>(i)];
+                
+                output << "    Device " << (i + 1) << ":\n";
+                
+                if (device.isMember("Name")) {
+                    output << "        Name:      " << device["Name"].asString() << "\n";
+                }
+                if (device.isMember("Bus")) {
+                    output << "        Bus:       " << device["Bus"].asString() << "\n";
+                }
+                if (device.isMember("Vendor")) {
+                    output << "        Vendor:    " << device["Vendor"].asString() << "\n";
+                }
+                if (device.isMember("Product")) {
+                    output << "        Product:   " << device["Product"].asString() << "\n";
+                }
+                if (device.isMember("Version")) {
+                    output << "        Version:   " << device["Version"].asString() << "\n";
+                }
+                if (device.isMember("Phys")) {
+                    output << "        Physical:  " << device["Phys"].asString() << "\n";
+                }
+                if (device.isMember("Sysfs")) {
+                    output << "        Sysfs:     " << device["Sysfs"].asString() << "\n";
+                }
+                if (device.isMember("Handlers")) {
+                    output << "        Handlers:  " << device["Handlers"].asString() << "\n";
+                }
+                if (device.isMember("KEY")) {
+                    output << "        Keys:      " << device["KEY"].asString() << "\n";
+                }
+                if (device.isMember("MSC")) {
+                    output << "        MSC:       " << device["MSC"].asString() << "\n";
+                }
+                if (device.isMember("Uniq")) {
+                    output << "        Unique ID: " << device["Uniq"].asString() << "\n";
+                }
+                
+                output << "\n";
+            }
+        }
+    }
+    
+    if (data.isMember("activeKeymap") && !data["activeKeymap"].isNull()) {
+        output << "    ACTIVE KEYMAP:\n";
+        output << "        " << data["activeKeymap"].asString() << "\n\n";
+    }
+    
+    // Show missing fields
+    bool hasMissing = false;
+    for (const auto& fieldName : coverage.getMemberNames()) {
+        const auto& field = coverage[fieldName];
+        if (field["status"] != "available") {
+            if (!hasMissing) {
+                output << "    MISSING FIELDS:\n";
+                hasMissing = true;
+            }
+            output << "        " << fieldName << ": " << field.get("reason", "Not available").asString() << "\n";
+        }
     }
     output << "\n";
     
