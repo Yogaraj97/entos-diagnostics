@@ -202,10 +202,14 @@ std::string UnifiedDiagnostics::formatPackageList(const Json::Value& data) {
     if (data.isMember("cache")) {
         const auto& cache = data["cache"];
         oss << "Cache Status:\n";
-        if (cache.isMember("used")) {
+        if (cache.isMember("used_bytes")) {
+            oss << "    Used: " << formatBytes(cache["used_bytes"].asInt64()) << "\n";
+        } else if (cache.isMember("used")) {
             oss << "    Used: " << formatBytes(cache["used"].asInt64()) << "\n";
         }
-        if (cache.isMember("limit")) {
+        if (cache.isMember("limit_bytes")) {
+            oss << "    Limit: " << formatBytes(cache["limit_bytes"].asInt64()) << "\n";
+        } else if (cache.isMember("limit")) {
             oss << "    Limit: " << formatBytes(cache["limit"].asInt64()) << "\n";
         }
         oss << "\n";
@@ -229,14 +233,29 @@ std::string UnifiedDiagnostics::formatPackageList(const Json::Value& data) {
             row.values.push_back(getString(pkg, "name"));
             row.values.push_back(getString(pkg, "version"));
             
+            // Handle size field - could be string or number
             if (pkg.isMember("size")) {
-                row.values.push_back(formatBytes(pkg["size"].asInt64()));
+                if (pkg["size"].isNumeric()) {
+                    row.values.push_back(formatBytes(pkg["size"].asInt64()));
+                } else {
+                    row.values.push_back(pkg["size"].asString());
+                }
             } else {
-                row.values.push_back("0 B");
+                row.values.push_back("--");
             }
             
             row.values.push_back(getString(pkg, "type"));
-            row.values.push_back(getString(pkg, "installed", "No"));
+            
+            // Handle installed field - could be bool or string
+            if (pkg.isMember("installed")) {
+                if (pkg["installed"].isBool()) {
+                    row.values.push_back(pkg["installed"].asBool() ? "Yes" : "No");
+                } else {
+                    row.values.push_back(pkg["installed"].asString());
+                }
+            } else {
+                row.values.push_back("--");
+            }
             builder.addRow(row);
         }
         builder.addSummary("Summary: " + std::to_string(packages.size()) + " package(s) in database");
@@ -249,47 +268,80 @@ std::string UnifiedDiagnostics::formatPackageList(const Json::Value& data) {
 std::string UnifiedDiagnostics::formatResourceStats(const Json::Value& data) {
     std::ostringstream oss;
     
-    // Total resources section
+    // Total resources section - handle both "totals" and direct fields
+    double total_cpu = 0;
+    long total_memory = 0;
+    
     if (data.isMember("totals")) {
         const auto& totals = data["totals"];
-        oss << "Total Resources:\n";
         if (totals.isMember("cpu")) {
-            oss << "    CPU: " << formatPercent(totals["cpu"].asDouble()) << "\n";
+            total_cpu = totals["cpu"].asDouble();
         }
         if (totals.isMember("memory")) {
-            oss << "    Memory: " << formatBytes(totals["memory"].asInt64()) << "\n";
+            total_memory = totals["memory"].asInt64();
+        }
+    } else {
+        // Direct fields
+        if (data.isMember("total_cpu")) {
+            total_cpu = data["total_cpu"].asDouble();
+        }
+        if (data.isMember("total_memory_bytes")) {
+            total_memory = data["total_memory_bytes"].asInt64();
+        }
+    }
+    
+    if (total_cpu > 0 || total_memory > 0) {
+        oss << "Total Resources:\n";
+        if (total_cpu > 0) {
+            oss << "    CPU: " << formatPercent(total_cpu) << "\n";
+        }
+        if (total_memory > 0) {
+            oss << "    Memory: " << formatBytes(total_memory) << "\n";
         }
         oss << "\n";
     }
     
-    // Per-app stats
+    // Per-app stats - handle both "apps" and "stats"
     std::vector<Column> columns = {
         {"App ID", 15, "left"},
         {"CPU (%)", 10, "right"},
-        {"Memory (MB)", 12, "right"},
+        {"Memory", 12, "right"},
         {"Timestamp", 12, "right"}
     };
     
     TableBuilder builder(columns);
     
+    Json::Value apps_array;
     if (data.isMember("apps") && data["apps"].isArray()) {
-        const auto& apps = data["apps"];
-        for (const auto& app : apps) {
+        apps_array = data["apps"];
+    } else if (data.isMember("stats") && data["stats"].isArray()) {
+        apps_array = data["stats"];
+    }
+    
+    if (!apps_array.empty() && apps_array.isArray()) {
+        for (const auto& app : apps_array) {
             TableRow row;
             row.values.push_back(getString(app, "appId"));
-            row.values.push_back(getDouble(app, "cpu", 1));
             
-            if (app.isMember("memory")) {
-                long mem_bytes = app["memory"].asInt64();
-                row.values.push_back(std::to_string(mem_bytes / (1024 * 1024)));
+            if (app.isMember("cpu")) {
+                row.values.push_back(std::to_string(static_cast<int>(app["cpu"].asDouble())));
             } else {
-                row.values.push_back("0");
+                row.values.push_back("--");
+            }
+            
+            if (app.isMember("memory_bytes")) {
+                long mem_bytes = app["memory_bytes"].asInt64();
+                row.values.push_back(formatBytes(mem_bytes));
+            } else if (app.isMember("memory")) {
+                row.values.push_back(std::to_string(app["memory"].asInt64()));
+            } else {
+                row.values.push_back("--");
             }
             
             row.values.push_back(getInt(app, "timestamp"));
             builder.addRow(row);
         }
-        builder.addSummary("Summary: " + std::to_string(apps.size()) + " app(s) monitored");
+        builder.addSummary("Summary: " + std::to_string(apps_array.size()) + " app(s) monitored");
     }
     
     oss << builder.build();
@@ -299,12 +351,14 @@ std::string UnifiedDiagnostics::formatResourceStats(const Json::Value& data) {
 std::string UnifiedDiagnostics::formatWindowClients(const Json::Value& data) {
     std::ostringstream oss;
     
-    // Focused application
-    if (data.isMember("focusedApp")) {
+    // Focused application - handle both "focusedApp" and "focused_app_id"
+    if (data.isMember("focused_app_id")) {
+        oss << "Focused Application: " << getString(data, "focused_app_id") << "\n\n";
+    } else if (data.isMember("focusedApp")) {
         oss << "Focused Application: " << getString(data, "focusedApp") << "\n\n";
     }
     
-    // Window state table
+    // Window state table - handle both "clients" and "apps"
     std::vector<Column> columns = {
         {"App ID", 15, "left"},
         {"Z-Order", 10, "right"},
@@ -314,17 +368,39 @@ std::string UnifiedDiagnostics::formatWindowClients(const Json::Value& data) {
     
     TableBuilder builder(columns);
     
+    Json::Value clients_array;
     if (data.isMember("clients") && data["clients"].isArray()) {
-        const auto& clients = data["clients"];
-        for (const auto& client : clients) {
+        clients_array = data["clients"];
+    } else if (data.isMember("apps") && data["apps"].isArray()) {
+        clients_array = data["apps"];
+    }
+    
+    if (!clients_array.empty() && clients_array.isArray()) {
+        for (const auto& client : clients_array) {
             TableRow row;
             row.values.push_back(getString(client, "appId"));
-            row.values.push_back(getInt(client, "zOrder"));
-            row.values.push_back(client.isMember("focused") && client["focused"].asBool() ? "Yes" : "No");
-            row.values.push_back(client.isMember("visible") && client["visible"].asBool() ? "Yes" : "No");
+            
+            if (client.isMember("zOrder")) {
+                row.values.push_back(std::to_string(client["zOrder"].asInt()));
+            } else {
+                row.values.push_back("--");
+            }
+            
+            if (client.isMember("focused")) {
+                row.values.push_back(client["focused"].asBool() ? "Yes" : "No");
+            } else {
+                row.values.push_back("--");
+            }
+            
+            if (client.isMember("visible")) {
+                row.values.push_back(client["visible"].asBool() ? "Yes" : "No");
+            } else {
+                row.values.push_back("--");
+            }
+            
             builder.addRow(row);
         }
-        builder.addSummary("Summary: " + std::to_string(clients.size()) + " window client(s)");
+        builder.addSummary("Summary: " + std::to_string(clients_array.size()) + " window client(s)");
     }
     
     oss << builder.build();

@@ -46,9 +46,11 @@ std::string AppManagerDumpsys::getLoadedApps(long timeoutMs) {
         return "ERROR: Failed to query loaded apps: " + reply.error + "\n";
     }
     
-    // Expected response format: { result: { apps: [...] } }
+    // Expected response format: { loaded_apps: [...] } or { apps: [...] }
     Json::Value apps = Json::Value(Json::arrayValue);
-    if (reply.data.isMember("apps")) {
+    if (reply.data.isMember("loaded_apps")) {
+        apps = reply.data["loaded_apps"];
+    } else if (reply.data.isMember("apps")) {
         apps = reply.data["apps"];
     } else if (reply.data.isArray()) {
         apps = reply.data;
@@ -71,9 +73,11 @@ std::string AppManagerDumpsys::getInstalledApps(long timeoutMs) {
         return "ERROR: Failed to query installed apps: " + reply.error + "\n";
     }
     
-    // Expected response format: { result: { packages: [...] } }
+    // Expected response format: { installed_apps: [...] } or { packages: [...] }
     Json::Value apps = Json::Value(Json::arrayValue);
-    if (reply.data.isMember("packages")) {
+    if (reply.data.isMember("installed_apps")) {
+        apps = reply.data["installed_apps"];
+    } else if (reply.data.isMember("packages")) {
         apps = reply.data["packages"];
     } else if (reply.data.isArray()) {
         apps = reply.data;
