@@ -94,49 +94,78 @@ std::string DumpsysFormatter::formatRuntimeManager(const Json::Value& data) {
     output << "    GUIAppManagerV2:\n";
     
     std::vector<std::string> columns = {
-        "App", "Version", "Runtime", "Flags", "State", "Changed", "AS Token"
+        "App", "Instance ID", "State", "PID"
     };
     
     output << "        ";
     for (size_t i = 0; i < columns.size(); ++i) {
-        if (i > 0) output << "| ";
-        output << padColumn(columns[i], 25);
+        if (i > 0) output << " | ";
+        output << padColumn(columns[i], 20);
     }
     output << "\n";
     
     output << "        ";
     for (size_t i = 0; i < columns.size(); ++i) {
-        if (i > 0) output << "+-";
-        output << std::string(25, '-');
+        if (i > 0) output << "-+-";
+        output << std::string(20, '-');
     }
     output << "\n";
     
-    // Process loaded apps
-    if (data.isMember("apps") && data["apps"].isArray()) {
-        for (const auto& app : data["apps"]) {
-            std::vector<std::string> row = {
-                app.get("appId", "--").asString(),
-                app.get("version", "--").asString(),
-                app.get("runtime", "--").asString(),
-                app.get("flags", "--").asString(),
-                app.get("state", "--").asString(),
-                app.get("changed", "--").asString(),
-                app.get("asToken", "--").asString().substr(0, 8) + "..."
-            };
+    // Process loaded apps - check both 'apps' and 'loaded_apps'
+    Json::Value apps_array;
+    if (data.isMember("loaded_apps") && data["loaded_apps"].isArray()) {
+        apps_array = data["loaded_apps"];
+    } else if (data.isMember("apps") && data["apps"].isArray()) {
+        apps_array = data["apps"];
+    }
+    
+    if (!apps_array.empty() && apps_array.isArray()) {
+        for (const auto& app : apps_array) {
+            std::vector<std::string> row;
+            
+            // App ID
+            if (app.isMember("appId")) {
+                row.push_back(app["appId"].asString());
+            } else {
+                row.push_back("--");
+            }
+            
+            // Instance ID
+            if (app.isMember("instanceId")) {
+                row.push_back(app["instanceId"].asString());
+            } else {
+                row.push_back("--");
+            }
+            
+            // State
+            if (app.isMember("state")) {
+                row.push_back(app["state"].asString());
+            } else {
+                row.push_back("--");
+            }
+            
+            // PID
+            if (app.isMember("pid")) {
+                row.push_back(std::to_string(app["pid"].asInt()));
+            } else {
+                row.push_back("--");
+            }
             
             output << "        ";
             for (size_t i = 0; i < row.size(); ++i) {
-                if (i > 0) output << "| ";
-                output << padColumn(row[i], 25);
+                if (i > 0) output << " | ";
+                output << padColumn(row[i], 20);
             }
             output << "\n";
         }
     }
     
-    output << "\n    DaemonAppManager:\n";
-    output << "        App                           | Version       | Runtime               | Flags | State       | Changed   | AS Token\n";
-    output << "        ----------------------------- | ------------- | --------------------- | ----- | ----------- | --------- | ------------------------------------\n";
-    output << "        (No daemon apps currently loaded)\n";
+    output << "\n    Summary:\n";
+    if (apps_array.isArray()) {
+        output << "        Loaded Apps: " << apps_array.size() << "\n";
+    } else {
+        output << "        Loaded Apps: 0\n";
+    }
     
     return output.str();
 }
