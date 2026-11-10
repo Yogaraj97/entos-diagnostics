@@ -1,17 +1,14 @@
-{
-  "success": true,
-  "installed_apps": [
-    {
-      "appId": "com.netflix.nrdp",
-      "name": "Netflix",
-      "version": "100.140.1.22110",
-      "category": "entertainment"
-    },
-    {
-      "appId": "com.bskyb.epgui",
-      "name": "Sky EPG UI",
-      "version": "4.22.2",
-      "category": "system"
-    }
-  ]
-}
+[
+  {
+    "appId": "com.netflix.nrdp",
+    "name": "Netflix",
+    "version": "100.140.1.22110",
+    "category": "entertainment"
+  },
+  {
+    "appId": "com.bskyb.epgui",
+    "name": "Sky EPG UI",
+    "version": "4.22.2",
+    "category": "system"
+  }
+]

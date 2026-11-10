@@ -111,7 +111,7 @@ std::string DumpsysFormatter::formatRuntimeManager(const Json::Value& data) {
     }
     output << "\n";
     
-    // Process loaded apps - check both 'apps' and 'loaded_apps'
+    // Process loaded apps - ONLY use loaded_apps (not installed_apps which has different fields)
     Json::Value apps_array;
     if (data.isMember("loaded_apps") && data["loaded_apps"].isArray()) {
         apps_array = data["loaded_apps"];
@@ -175,153 +175,66 @@ std::string DumpsysFormatter::formatPackageManager(const Json::Value& data) {
     
     output << createSectionHeader("PACKAGE MANAGER");
     
-    // Installer section
-    output << "    Installer:\n";
-    int downloadThreads = data.get("downloadThreads", 0).asInt();
-    output << "        Download Threads: " << downloadThreads << "\n";
-    
-    // In-progress requests
-    if (data.isMember("inProgress") && data["inProgress"].isArray() && data["inProgress"].size() > 0) {
-        output << "        Requests in Progress:\n";
-        for (const auto& request : data["inProgress"]) {
-            std::string id = request.get("id", "unknown").asString();
-            std::string url = request.get("url", "").asString();
-            int rateLimit = request.get("rateLimit", 0).asInt();
-            
-            output << "            " << id << " -\n";
-            output << "              Url: " << url << "\n";
-            output << "              Status: Downloading\n";
-            output << "              RateLimit: ";
-            if (rateLimit <= 0)
-                output << "none\n";
-            else
-                output << rateLimit << " bps\n";
-            
-            if (request.isMember("progress") && request["progress"].isInt()) {
-                output << "              Progress: " << request["progress"].asInt() << "%\n";
-            }
-        }
-    } else {
-        output << "        Requests in Progress: None\n";
-    }
-    
-    // Pending requests
-    if (data.isMember("pending") && data["pending"].isArray() && data["pending"].size() > 0) {
-        output << "        Requests Pending:\n";
-        for (const auto& request : data["pending"]) {
-            std::string id = request.get("id", "unknown").asString();
-            std::string url = request.get("url", "").asString();
-            int rateLimit = request.get("rateLimit", 0).asInt();
-            
-            output << "            " << id << " -\n";
-            output << "              Url: " << url << "\n";
-            output << "              Status: Pending\n";
-            output << "              RateLimit: ";
-            if (rateLimit <= 0)
-                output << "none\n";
-            else
-                output << rateLimit << " bps\n";
-        }
-    } else {
-        output << "        Requests Pending: None\n";
-    }
-    
-    // Package Database section
-    output << "    Package Database:\n";
-    
-    // Platform IDs
-    output << "        Compatible Platform Ids: ";
-    if (data.isMember("platformIds") && data["platformIds"].isArray()) {
-        const auto& platformIds = data["platformIds"];
-        if (platformIds.size() == 0) {
-            output << "N/A\n";
-        } else {
-            for (Json::Value::ArrayIndex i = 0; i < platformIds.size(); ++i) {
-                if (i > 0) output << ", ";
-                output << platformIds[static_cast<int>(i)].asString();
-            }
-            output << "\n";
-        }
-    } else {
-        output << "N/A\n";
-    }
-    
-    // Storage dir
-    std::string storageDir = data.get("storageDir", "N/A").asString();
-    output << "        Storage Dir: \"" << storageDir << "\"\n";
-    output << "        RALF Packages Supported: true\n";
-    output << "        Package Mount Mode: auto\n";
-    output << "        Packages:\n";
-    
-    // Packages table
-    output << "            App                                               | Version          | UserID\n";
-    output << "            ------------------------------------------------- | ---------------- | --------------\n";
-    
+    // Check if this is listPackages data (array of packages)
     if (data.isMember("packages") && data["packages"].isArray()) {
         const auto& packages = data["packages"];
+        
+        // For listPackages API response
+        output << "    Installed Packages:\n";
+        output << "        App                          | Version              | State       | Size (KB) | Package Type\n";
+        output << "        ---------------------------- | -------------------- | ----------- | --------- | -----------------------\n";
+        
         if (packages.size() == 0) {
-            output << "            (No packages)\n";
+            output << "        (No packages found)\n";
         } else {
             for (const auto& pkg : packages) {
-                std::string app = pkg.get("app", "unknown").asString();
+                std::string packageId = pkg.get("packageId", "unknown").asString();
                 std::string version = pkg.get("version", "unknown").asString();
-                int userId = pkg.get("userId", -1).asInt();
-                std::string userName = pkg.get("userName", "").asString();
+                std::string state = pkg.get("state", "unknown").asString();
+                int sizeKb = pkg.get("sizeKb", 0).asInt();
+                std::string packageType = pkg.get("packageType", "unknown").asString();
                 
-                std::string userInfo;
-                if (userId >= 0) {
-                    userInfo = std::to_string(userId);
-                    if (!userName.empty()) {
-                        userInfo += " " + userName;
-                    }
-                } else {
-                    userInfo = "N/A";
-                }
-                
-                output << "            " << std::left << std::setw(51) << app
-                       << std::left << std::setw(18) << version
-                       << userInfo << "\n";
+                output << "        " << std::left << std::setw(29) << packageId
+                       << std::left << std::setw(21) << version
+                       << std::left << std::setw(12) << state
+                       << std::right << std::setw(10) << sizeKb
+                       << std::left << std::setw(1) << " "
+                       << packageType << "\n";
             }
         }
-    }
-    
-    // Package Cache section
-    output << "    Package Cache:\n";
-    std::string cacheSize = data.get("cacheSize", "0 MB").asString();
-    std::string cacheLimit = data.get("cacheLimit", "100 MB").asString();
-    output << "        Cache Size: " << cacheSize << "\n";
-    output << "        Cache Limit: " << cacheLimit << "\n";
-    output << "        Entries:\n";
-    
-    output << "            App                           | Version       | Size         | Last Used | Format  | Path\n";
-    output << "            ----------------------------- | ------------- | ------------ | --------- | ------- | ---------------------------------\n";
-    
-    if (data.isMember("cacheEntries") && data["cacheEntries"].isArray()) {
-        const auto& cacheEntries = data["cacheEntries"];
-        if (cacheEntries.size() == 0) {
-            output << "            (No cached packages)\n";
-        } else {
-            for (const auto& entry : cacheEntries) {
-                std::string app = entry.get("app", "unknown").asString();
-                std::string version = entry.get("version", "unknown").asString();
-                std::string size = entry.get("size", "0 B").asString();
-                std::string lastUsed = entry.get("lastUsed", "unknown").asString();
-                std::string path = entry.get("path", "").asString();
-                std::string format = "ZIP";
-                
-                output << "            " << std::left << std::setw(31) << app
-                       << std::left << std::setw(15) << version
-                       << std::left << std::setw(14) << size
-                       << std::left << std::setw(11) << lastUsed
-                       << std::left << std::setw(9) << format
-                       << "\"" << path << "\"\n";
+    } else {
+        // For other package manager responses
+        output << "    Installer:\n";
+        int downloadThreads = data.get("downloadThreads", 0).asInt();
+        output << "        Download Threads: " << downloadThreads << "\n";
+        
+        if (data.isMember("inProgress") && data["inProgress"].isArray() && data["inProgress"].size() > 0) {
+            output << "        Requests in Progress:\n";
+            for (const auto& request : data["inProgress"]) {
+                std::string id = request.get("id", "unknown").asString();
+                std::string url = request.get("url", "").asString();
+                int rateLimit = request.get("rateLimit", 0).asInt();
+                output << "            " << id << " - " << url << " (Rate: " << (rateLimit > 0 ? std::to_string(rateLimit) + " bps" : "none") << ")\n";
             }
+        } else {
+            output << "        Requests in Progress: None\n";
+        }
+        
+        if (data.isMember("pending") && data["pending"].isArray() && data["pending"].size() > 0) {
+            output << "        Requests Pending:\n";
+            for (const auto& request : data["pending"]) {
+                std::string id = request.get("id", "unknown").asString();
+                std::string url = request.get("url", "").asString();
+                int rateLimit = request.get("rateLimit", 0).asInt();
+                output << "            " << id << " - " << url << " (Rate: " << (rateLimit > 0 ? std::to_string(rateLimit) + " bps" : "none") << ")\n";
+            }
+        } else {
+            output << "        Requests Pending: None\n";
         }
     }
     
     return output.str();
 }
-
 std::string DumpsysFormatter::formatResourceMonitor(const Json::Value& data) {
     std::ostringstream output;
     

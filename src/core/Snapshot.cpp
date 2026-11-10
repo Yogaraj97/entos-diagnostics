@@ -131,7 +131,7 @@ std::string textOutput(const Json::Value& snapshot)
         std::string sectionId = section["id"].asString();
         
         // Use DumpsysFormatter for app-related sections for proper table output
-        if (sectionId == "runtime" && section["data"].isMember("apps")) {
+        if (sectionId == "runtime" && (section["data"].isMember("loaded_apps") || section["data"].isMember("apps"))) {
             output << DumpsysFormatter::formatRuntimeManager(section["data"]);
             continue;
         } else if (sectionId == "package" && section["data"].isMember("packages")) {

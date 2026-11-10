@@ -1,23 +1,26 @@
-{
-  "success": true,
-  "packages": [
-    {
-      "name": "com.netflix.nrdp",
-      "version": "100.140.1.22110",
-      "size": "52 MB",
-      "installed": true,
-      "type": "zip"
-    },
-    {
-      "name": "com.bskyb.epgui",
-      "version": "4.22.2",
-      "size": "11 MB",
-      "installed": true,
-      "type": "zip"
-    }
-  ],
-  "cache": {
-    "used_bytes": 503316480,
-    "limit_bytes": 104857600
+[
+  {
+    "packageId": "AmazonMusic",
+    "version": "100.6.0",
+    "state": "INSTALLED",
+    "digest": "a3095272cdf459a7e33771f18f07b505",
+    "sizeKb": 1048576,
+    "packageType": "application"
+  },
+  {
+    "packageId": "NetflixApp",
+    "version": "rdke-sercomm-xione-flex2_3.3.20260917091320.70",
+    "state": "INSTALLED",
+    "digest": "c08da923d36d8e920c79b9483e52716a",
+    "sizeKb": 125829120,
+    "packageType": "application"
+  },
+  {
+    "packageId": "Hulu",
+    "version": "100.8.0",
+    "state": "INSTALLED",
+    "digest": "1e5eda88d6c00d58cea52022dba119e8",
+    "sizeKb": 1048576,
+    "packageType": "application"
   }
-}
+]

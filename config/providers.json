@@ -35,7 +35,7 @@
       "resultType": "array",
       "evidence": "entservices-appmanagers/AppManager/AppManager.h:Exchange::JAppManager::Register; dumpsys.txt PACKAGE MANAGER Database shows installed packages; Thunder returns array of app objects",
       "verification": "verified",
-      "enabled": true,
+      "enabled": false,
       "fieldMappings": {
         "apps": {
           "path": [],
@@ -54,76 +54,13 @@
       "operation": "listPackages",
       "readOnly": true,
       "params": {},
-      "resultType": "object",
-      "resultIsEmbeddedJson": true,
-      "evidence": "entservices-appmanagers/PackageManager/PackageManager.h; dumpsys.txt PACKAGE MANAGER Database and Cache sections; Thunder wraps result as JSON string with packageInfo and downloaderInfo objects",
+      "resultType": "array",
+      "evidence": "entservices-appmanagers/PackageManager/PackageManager.h; dumpsys.txt PACKAGE MANAGER Database and Cache sections; Thunder returns array of package objects with packageId, version, state, digest, sizeKb, packageType",
       "verification": "verified",
       "enabled": true,
       "fieldMappings": {
-        "platformIds": {
-          "path": [
-            "packageInfo",
-            "compatiblePlatformIds"
-          ],
-          "embeddedJson": false
-        },
-        "storageDir": {
-          "path": [
-            "packageInfo",
-            "storageDir"
-          ],
-          "embeddedJson": false
-        },
         "packages": {
-          "path": [
-            "packageInfo",
-            "packages"
-          ],
-          "embeddedJson": false
-        },
-        "cacheSize": {
-          "path": [
-            "packageInfo",
-            "packageCache",
-            "cacheSize"
-          ],
-          "embeddedJson": false
-        },
-        "cacheLimit": {
-          "path": [
-            "packageInfo",
-            "packageCache",
-            "cacheLimit"
-          ],
-          "embeddedJson": false
-        },
-        "cacheEntries": {
-          "path": [
-            "packageInfo",
-            "packageCache",
-            "entries"
-          ],
-          "embeddedJson": false
-        },
-        "downloadThreads": {
-          "path": [
-            "downloaderInfo",
-            "downloadThreads"
-          ],
-          "embeddedJson": false
-        },
-        "inProgress": {
-          "path": [
-            "downloaderInfo",
-            "inProgress"
-          ],
-          "embeddedJson": false
-        },
-        "pending": {
-          "path": [
-            "downloaderInfo",
-            "pending"
-          ],
+          "path": [],
           "embeddedJson": false
         }
       }
