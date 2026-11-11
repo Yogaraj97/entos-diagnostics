@@ -94,7 +94,7 @@ std::string DumpsysFormatter::formatRuntimeManager(const Json::Value& data) {
     output << "    GUIAppManagerV2:\n";
     
     std::vector<std::string> columns = {
-        "App", "Instance ID", "State", "PID"
+        "App", "Instance ID", "Type", "State", "PID"
     };
     
     output << "        ";
@@ -130,21 +130,32 @@ std::string DumpsysFormatter::formatRuntimeManager(const Json::Value& data) {
                 row.push_back("--");
             }
             
-            // Instance ID
-            if (app.isMember("instanceId")) {
+            // Instance ID - Try appInstanceId first (actual Thunder field), then fallback to instanceId
+            if (app.isMember("appInstanceId")) {
+                row.push_back(app["appInstanceId"].asString());
+            } else if (app.isMember("instanceId")) {
                 row.push_back(app["instanceId"].asString());
             } else {
                 row.push_back("--");
             }
             
-            // State
-            if (app.isMember("state")) {
+            // Type - App type (INTERACTIVE_APP, SERVICE_APP, etc.)
+            if (app.isMember("type")) {
+                row.push_back(app["type"].asString());
+            } else {
+                row.push_back("--");
+            }
+            
+            // State - Try lifecycleState first (actual Thunder field), then fallback to state
+            if (app.isMember("lifecycleState")) {
+                row.push_back(app["lifecycleState"].asString());
+            } else if (app.isMember("state")) {
                 row.push_back(app["state"].asString());
             } else {
                 row.push_back("--");
             }
             
-            // PID
+            // PID - Try to get from pid field, or show "--" if not available
             if (app.isMember("pid")) {
                 row.push_back(std::to_string(app["pid"].asInt()));
             } else {
@@ -470,38 +481,71 @@ std::string DumpsysFormatter::formatInputHandler(const Json::Value& section) {
                 
                 output << "    Device " << (i + 1) << ":\n";
                 
+                // Try uppercase field names first (as in mock data), then lowercase
                 if (device.isMember("Name")) {
                     output << "        Name:      " << device["Name"].asString() << "\n";
+                } else if (device.isMember("name")) {
+                    output << "        Name:      " << device["name"].asString() << "\n";
                 }
+                
                 if (device.isMember("Bus")) {
                     output << "        Bus:       " << device["Bus"].asString() << "\n";
+                } else if (device.isMember("bus")) {
+                    output << "        Bus:       " << device["bus"].asString() << "\n";
                 }
+                
                 if (device.isMember("Vendor")) {
                     output << "        Vendor:    " << device["Vendor"].asString() << "\n";
+                } else if (device.isMember("vendor")) {
+                    output << "        Vendor:    " << device["vendor"].asString() << "\n";
                 }
+                
                 if (device.isMember("Product")) {
                     output << "        Product:   " << device["Product"].asString() << "\n";
+                } else if (device.isMember("product")) {
+                    output << "        Product:   " << device["product"].asString() << "\n";
                 }
+                
                 if (device.isMember("Version")) {
                     output << "        Version:   " << device["Version"].asString() << "\n";
+                } else if (device.isMember("version")) {
+                    output << "        Version:   " << device["version"].asString() << "\n";
                 }
+                
                 if (device.isMember("Phys")) {
                     output << "        Physical:  " << device["Phys"].asString() << "\n";
+                } else if (device.isMember("phys")) {
+                    output << "        Physical:  " << device["phys"].asString() << "\n";
                 }
+                
                 if (device.isMember("Sysfs")) {
                     output << "        Sysfs:     " << device["Sysfs"].asString() << "\n";
+                } else if (device.isMember("sysfs")) {
+                    output << "        Sysfs:     " << device["sysfs"].asString() << "\n";
                 }
+                
                 if (device.isMember("Handlers")) {
                     output << "        Handlers:  " << device["Handlers"].asString() << "\n";
+                } else if (device.isMember("handlers")) {
+                    output << "        Handlers:  " << device["handlers"].asString() << "\n";
                 }
+                
                 if (device.isMember("KEY")) {
                     output << "        Keys:      " << device["KEY"].asString() << "\n";
+                } else if (device.isMember("key")) {
+                    output << "        Keys:      " << device["key"].asString() << "\n";
                 }
+                
                 if (device.isMember("MSC")) {
                     output << "        MSC:       " << device["MSC"].asString() << "\n";
+                } else if (device.isMember("msc")) {
+                    output << "        MSC:       " << device["msc"].asString() << "\n";
                 }
+                
                 if (device.isMember("Uniq")) {
                     output << "        Unique ID: " << device["Uniq"].asString() << "\n";
+                } else if (device.isMember("uniq")) {
+                    output << "        Unique ID: " << device["uniq"].asString() << "\n";
                 }
                 
                 output << "\n";
