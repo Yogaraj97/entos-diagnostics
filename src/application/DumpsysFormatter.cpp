@@ -97,17 +97,20 @@ std::string DumpsysFormatter::formatRuntimeManager(const Json::Value& data) {
         "App", "Instance ID", "Type", "State", "PID"
     };
     
+    // Column widths - increased to accommodate full UUIDs and state names
+    std::vector<size_t> widths = {20, 40, 20, 28, 10};
+    
     output << "        ";
     for (size_t i = 0; i < columns.size(); ++i) {
         if (i > 0) output << " | ";
-        output << padColumn(columns[i], 20);
+        output << padColumn(columns[i], widths[i]);
     }
     output << "\n";
     
     output << "        ";
     for (size_t i = 0; i < columns.size(); ++i) {
         if (i > 0) output << "-+-";
-        output << std::string(20, '-');
+        output << std::string(widths[i], '-');
     }
     output << "\n";
     
@@ -165,7 +168,8 @@ std::string DumpsysFormatter::formatRuntimeManager(const Json::Value& data) {
             output << "        ";
             for (size_t i = 0; i < row.size(); ++i) {
                 if (i > 0) output << " | ";
-                output << padColumn(row[i], 20);
+                size_t colWidth = (i < widths.size()) ? widths[i] : 20;
+                output << padColumn(row[i], colWidth);
             }
             output << "\n";
         }
