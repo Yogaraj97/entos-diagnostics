@@ -98,13 +98,13 @@
       "operation": "getApps",
       "readOnly": true,
       "params": {},
-      "resultType": "array",
-      "evidence": "entservices-appmanagers/RDKWindowManager/RDKWindowManager.h; RDK shell shows app z-order and focus state; Thunder returns array of app window objects",
+      "resultType": "object",
+      "evidence": "entservices-appmanagers/RDKWindowManager/RDKWindowManager.h; RDK shell shows app z-order and focus state; Thunder returns object with apps array",
       "verification": "verified",
       "enabled": true,
       "fieldMappings": {
         "clients": {
-          "path": [],
+          "path": ["apps"],
           "embeddedJson": false
         }
       }

@@ -45,10 +45,18 @@ void collectApplication(Json::Value& section, CollectionContext& context)
             bool present = true;
             
             // Navigate through the path (if any)
-            for (const auto& key : field.second.path) {
-                if (!value.isObject()) { present = false; break; }
-                if (!value.isMember(key)) { present = false; break; }
-                value = value[key];
+            // For array results with empty path, use the entire array
+            // For object results with path, navigate through the keys
+            if (field.second.path.empty() && provider.resultType == "array") {
+                value = data;  // Use entire array as-is
+                present = data.isArray();
+            } else {
+                // Navigate through the path for object results or nested paths
+                for (const auto& key : field.second.path) {
+                    if (!value.isObject()) { present = false; break; }
+                    if (!value.isMember(key)) { present = false; break; }
+                    value = value[key];
+                }
             }
             
             // If path navigation failed or value is null, skip this field
